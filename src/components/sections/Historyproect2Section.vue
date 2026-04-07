@@ -4,9 +4,9 @@ import teamPhoto from '../../assets/hero-cover.jpg'
 import davidPhoto from '../../assets/david-portrait.jpg'
 
 const aboutParagraphs = [
-  'Привет. Я Давид, и МГДИ появился из простой идеи: дать ребятам пространство, где вера, творчество и действие идут вместе.',
-  'Мы создаем среду, где можно служить Богу через реальные дела: поддерживать людей, запускать инициативы и строить крепкое сообщество.',
-  'Каждый проект здесь - это шаг к личному росту и пользе для города.'
+  'Привет. Я Давид, и МГДИ появился из простой идеи: дать ребятам пространство, где они могут полностью посвятить себя и свое время для духовной роста и практики.',
+  'Молодежный год для Иисуса это решение которые способно изменить твою жизнь. Множество различных служений, возможность пройти обучение в библейской школе, а так же потом применить это все на практике.',
+  'Каждый проект здесь – это открытые сердца готовые служить и развивать те таланты которые вложил в них Господь.'
 ]
 
 const aboutRef = ref(null)
@@ -112,13 +112,13 @@ onBeforeUnmount(() => {
   margin-top: 30px;
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
-  align-items: stretch;
+  align-items: start;
   gap: var(--gutter-desktop);
 }
 
 .about-text {
   grid-column: 5 / span 4;
-  align-self: center;
+  align-self: start;
   max-width: 610px;
   opacity: 0;
   transform: translateY(16px);
@@ -179,7 +179,7 @@ onBeforeUnmount(() => {
 
 .about-team {
   grid-column: 1 / span 4;
-  align-self: end;
+  align-self: start;
   height: 336px;
   transform: translateX(-52px);
 }
@@ -187,7 +187,7 @@ onBeforeUnmount(() => {
 .about-david {
   grid-column: 10 / span 3;
   align-self: start;
-  height: 300px;
+  height: 332px;
   transform: translateX(58px);
   transition-delay: 0.18s;
 }
@@ -213,7 +213,7 @@ onBeforeUnmount(() => {
   }
 
   .about-david {
-    height: 272px;
+    height: 292px;
   }
 }
 

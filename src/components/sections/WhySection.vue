@@ -1,4 +1,11 @@
 ﻿<script setup>
+import guitarCard from '../../assets/карточка гитара.png'
+import communicationCard from '../../assets/карточка общение.png'
+import learningCard from '../../assets/карточка обучение.png'
+import tripsCard from '../../assets/карточка поездки.png'
+
+const iconSet = [guitarCard, communicationCard, learningCard, tripsCard]
+
 defineProps({
   cards: {
     type: Array,
@@ -20,9 +27,13 @@ defineProps({
 
       <div class="grid-12 why-grid">
         <article v-for="(card, index) in cards" :key="card.title" class="why-card col-3">
-          <span class="why-index">0{{ index + 1 }}</span>
-          <h3>{{ card.title }}</h3>
-          <p>{{ card.text }}</p>
+          <p class="why-top">{{ card.title }}</p>
+
+          <div class="why-icon-shell" aria-hidden="true">
+            <img class="why-icon" :src="iconSet[index % iconSet.length]" alt="" />
+          </div>
+
+          <p class="why-bottom">{{ card.text }}</p>
         </article>
       </div>
     </div>
@@ -59,60 +70,58 @@ defineProps({
 }
 
 .why-grid {
-  align-items: stretch;
+  align-items: start;
 }
 
 .why-card {
-  position: relative;
-  min-height: 188px;
-  border-radius: var(--radius-md);
-  padding: 20px 20px 24px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  overflow: hidden;
-  transition: transform 0.26s ease, background 0.26s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  padding: 0 8px;
 }
 
-.why-card::after {
-  content: '';
-  position: absolute;
-  inset: auto -20% -48px;
-  height: 110px;
-  border-radius: 50%;
-  border: 1px solid rgba(191, 211, 90, 0.2);
-  opacity: 0.7;
-}
-
-.why-card:hover {
-  transform: translateY(-5px);
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.why-index {
-  display: inline-flex;
-  margin-bottom: 10px;
-  font-family: 'Dela Gothic One', sans-serif;
-  font-size: 1.25rem;
-  letter-spacing: 0.04em;
-  color: rgba(191, 211, 90, 0.94);
-}
-
-.why-card h3 {
-  margin: 0 0 10px;
-  font-family: 'Dela Gothic One', sans-serif;
-  font-size: 1.06rem;
-  font-weight: 400;
-}
-
-.why-card p {
+.why-top {
   margin: 0;
+  min-height: 2.5em;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.why-icon-shell {
+  width: min(100%, 150px);
+  aspect-ratio: 1 / 1;
+}
+
+.why-icon {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.why-bottom {
+  margin: 0;
+  min-height: 4.4em;
   color: rgba(255, 255, 255, 0.8);
-  font-size: 0.93rem;
-  line-height: 1.5;
+  font-size: 0.86rem;
+  line-height: 1.45;
 }
 
 @media (max-width: 900px) {
-  .why-card {
+  .why-top {
+    min-height: auto;
+  }
+
+  .why-icon-shell {
+    width: min(100%, 136px);
+  }
+
+  .why-bottom {
     min-height: auto;
   }
 }

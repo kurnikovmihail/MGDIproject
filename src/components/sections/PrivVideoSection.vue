@@ -1,11 +1,14 @@
 ﻿<script setup>
-import heroCover from '../../assets/priv-video-loop.gif'
+import heroPoster from '../../assets/hero-cover.jpg'
+import heroVideo from '../../assets/hero_bw_desktop_1920x1080.mp4'
 </script>
 
 <template>
   <section id="priv-video" class="hero" data-block-name="Priv.video">
-    <div class="hero-backdrop" :style="{ backgroundImage: `url(${heroCover})` }" aria-hidden="true"></div>
-    <img :src="heroCover" alt="Команда проекта МГДИ" class="hero-media" />
+    <div class="hero-backdrop" :style="{ backgroundImage: `url(${heroPoster})` }" aria-hidden="true"></div>
+    <video class="hero-media" :poster="heroPoster" autoplay muted loop playsinline preload="auto" aria-hidden="true">
+      <source :src="heroVideo" type="video/mp4" />
+    </video>
     <div class="hero-overlay" aria-hidden="true"></div>
     <div class="hero-noise" aria-hidden="true"></div>
 
@@ -47,14 +50,10 @@ import heroCover from '../../assets/priv-video-loop.gif'
 
 .hero-media {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: auto;
-  height: auto;
-  max-width: min(100vw, 78vh);
-  max-height: 100%;
-  transform: translate(-50%, -50%);
-  object-fit: contain;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   object-position: center;
   filter: grayscale(100%) contrast(1.04);
   z-index: 1;
