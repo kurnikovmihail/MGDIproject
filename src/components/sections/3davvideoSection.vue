@@ -1,6 +1,19 @@
 ﻿<script setup>
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import serviceVideoPoster from '../../assets/service-video-poster.jpg'
+import guitarCard from '../../assets/card-guitar.png'
+import communicationCard from '../../assets/card-communication.png'
+import learningCard from '../../assets/card-learning.png'
+import tripsCard from '../../assets/card-trips.png'
+import mgdiPatternImage from '../../assets/mgdi-pattern-strip.png'
+
+const iconSet = [guitarCard, communicationCard, learningCard, tripsCard]
+const rowDurations = [55, 68, 60, 75]
+const patternRows = Array.from({ length: 12 }, (_, index) => ({
+  id: `row-${index + 1}`,
+  reverse: index % 2 === 1,
+  duration: rowDurations[index % rowDurations.length] + Math.floor(index / 4) * 4
+}))
 
 const props = defineProps({
   label: {
@@ -23,6 +36,10 @@ const props = defineProps({
   posterAlt: {
     type: String,
     default: 'Приветственное видео о служении в проекте МГДИ'
+  },
+  cards: {
+    type: Array,
+    default: () => []
   }
 })
 
@@ -73,6 +90,21 @@ onBeforeUnmount(() => {
     data-block-name="3davvideo"
     :class="{ 'is-portal-open': isPortalOpen }"
   >
+    <div class="mgdi-pattern" aria-hidden="true">
+      <div
+        v-for="row in patternRows"
+        :key="row.id"
+        class="mgdi-row"
+        :class="{ 'is-reverse': row.reverse }"
+        :style="{ '--mgdi-duration': `${row.duration}s` }"
+      >
+        <div class="mgdi-track">
+          <img class="mgdi-strip" :src="mgdiPatternImage" alt="" />
+          <img class="mgdi-strip" :src="mgdiPatternImage" alt="" />
+        </div>
+      </div>
+    </div>
+
     <div class="container life-shell">
       <p class="section-kicker">{{ props.label }}</p>
       <h2 class="section-title life-title">{{ props.title }}</h2>
@@ -89,6 +121,18 @@ onBeforeUnmount(() => {
         <div class="portal-overlay" aria-hidden="true"></div>
         <p class="portal-tag">Приветственное видео</p>
       </div>
+
+      <div v-if="props.cards.length" class="grid-12 why-grid life-cards">
+        <article v-for="(card, index) in props.cards" :key="card.title" class="why-card col-3">
+          <p class="why-top">{{ card.title }}</p>
+
+          <div class="why-icon-shell" aria-hidden="true">
+            <img class="why-icon" :src="iconSet[index % iconSet.length]" alt="" />
+          </div>
+
+          <p class="why-bottom">{{ card.text }}</p>
+        </article>
+      </div>
     </div>
   </section>
 </template>
@@ -97,6 +141,7 @@ onBeforeUnmount(() => {
 .life {
   position: relative;
   overflow: hidden;
+  isolation: isolate;
   background:
     radial-gradient(circle at 14% 16%, rgba(191, 211, 90, 0.11), rgba(191, 211, 90, 0) 34%),
     radial-gradient(circle at 86% 18%, rgba(255, 98, 51, 0.1), rgba(255, 98, 51, 0) 34%),
@@ -105,7 +150,54 @@ onBeforeUnmount(() => {
 
 .life-shell {
   position: relative;
+  z-index: 3;
+}
+
+.mgdi-pattern {
+  position: absolute;
+  inset: 0;
   z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(6px, 0.6vw, 12px);
+  padding: clamp(10px, 1.4vw, 20px) 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.mgdi-row {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+}
+
+.mgdi-track {
+  width: max-content;
+  display: flex;
+  gap: 0;
+  align-items: center;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  animation: mgdi-slide-left var(--mgdi-duration, 60s) linear infinite;
+}
+
+.mgdi-row.is-reverse .mgdi-track {
+  animation-name: mgdi-slide-right;
+}
+
+.mgdi-strip {
+  flex: 0 0 auto;
+  display: block;
+  width: auto;
+  min-width: 0;
+  height: 106px;
+  margin-right: 0;
+  opacity: 0.4;
+  filter: saturate(0.98) brightness(0.96);
+  user-select: none;
 }
 
 .life::after {
@@ -114,6 +206,7 @@ onBeforeUnmount(() => {
   left: 0;
   right: 0;
   bottom: 0;
+  z-index: 2;
   height: 180px;
   pointer-events: none;
   background: linear-gradient(
@@ -264,6 +357,59 @@ onBeforeUnmount(() => {
   backdrop-filter: blur(6px);
 }
 
+.life-cards {
+  margin-top: 34px;
+  align-items: start;
+}
+
+.why-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  padding: 0 8px;
+}
+
+.why-top {
+  margin: 0;
+  min-height: 2.5em;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.96);
+  text-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.55),
+    0 0 10px rgba(199, 216, 97, 0.18);
+}
+
+.why-icon-shell {
+  width: min(100%, 195px);
+  aspect-ratio: 1 / 1;
+}
+
+.why-icon {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.why-bottom {
+  margin: 0;
+  min-height: 4.4em;
+  max-width: 230px;
+  color: #c7d861;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1.5;
+  text-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.48),
+    0 0 8px rgba(199, 216, 97, 0.16);
+}
+
 .life.is-portal-open .portal-corner {
   opacity: 1;
   transform: scale(1) rotate(0deg);
@@ -296,7 +442,47 @@ onBeforeUnmount(() => {
   transition-delay: 0.12s;
 }
 
+@keyframes mgdi-slide-left {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes mgdi-slide-right {
+  from {
+    transform: translateX(-50%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+@media (max-width: 1200px) {
+  .mgdi-row:nth-child(n + 11) {
+    display: none;
+  }
+
+}
+
 @media (max-width: 900px) {
+  .mgdi-pattern {
+    padding: 10px 0;
+    gap: 6px;
+  }
+
+  .mgdi-row:nth-child(n + 6) {
+    display: none;
+  }
+
+  .mgdi-strip {
+    height: 53px;
+  }
+
   .life-lead {
     margin-bottom: 20px;
   }
@@ -314,13 +500,34 @@ onBeforeUnmount(() => {
   .life::after {
     height: 136px;
   }
+
+  .life-cards {
+    margin-top: 24px;
+  }
+
+  .why-top {
+    min-height: auto;
+  }
+
+  .why-icon-shell {
+    width: min(100%, 176px);
+  }
+
+  .why-bottom {
+    min-height: auto;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .mgdi-track,
   .portal-media,
   .portal-corner,
   .portal-shutter {
     transition: none;
+  }
+
+  .mgdi-track {
+    animation: none;
   }
 
   .portal-media {
