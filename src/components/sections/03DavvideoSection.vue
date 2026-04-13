@@ -154,6 +154,8 @@ onBeforeUnmount(() => {
 }
 
 .mgdi-pattern {
+  --mgdi-shift: 1540px;
+  --mgdi-steps: 1540;
   position: absolute;
   inset: 0;
   z-index: 1;
@@ -181,7 +183,10 @@ onBeforeUnmount(() => {
   align-items: center;
   will-change: transform;
   transform: translate3d(0, 0, 0);
-  animation: mgdi-slide-left var(--mgdi-duration, 60s) linear infinite;
+  animation-name: mgdi-slide-left;
+  animation-duration: var(--mgdi-duration, 60s);
+  animation-timing-function: steps(var(--mgdi-steps), end);
+  animation-iteration-count: infinite;
 }
 
 .mgdi-row.is-reverse .mgdi-track {
@@ -193,10 +198,11 @@ onBeforeUnmount(() => {
   display: block;
   width: auto;
   min-width: 0;
-  height: 106px;
+  height: 90px;
   margin-right: 0;
-  opacity: 0.4;
-  filter: saturate(0.98) brightness(0.96);
+  opacity: 0.22;
+  filter: saturate(0.92) brightness(0.9);
+  image-rendering: auto;
   user-select: none;
 }
 
@@ -444,21 +450,21 @@ onBeforeUnmount(() => {
 
 @keyframes mgdi-slide-left {
   from {
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
   }
 
   to {
-    transform: translateX(-50%);
+    transform: translate3d(calc(-1 * var(--mgdi-shift)), 0, 0);
   }
 }
 
 @keyframes mgdi-slide-right {
   from {
-    transform: translateX(-50%);
+    transform: translate3d(calc(-1 * var(--mgdi-shift)), 0, 0);
   }
 
   to {
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
   }
 }
 
@@ -471,6 +477,8 @@ onBeforeUnmount(() => {
 
 @media (max-width: 900px) {
   .mgdi-pattern {
+    --mgdi-shift: 770px;
+    --mgdi-steps: 770;
     padding: 10px 0;
     gap: 6px;
   }
@@ -480,7 +488,7 @@ onBeforeUnmount(() => {
   }
 
   .mgdi-strip {
-    height: 53px;
+    height: 45px;
   }
 
   .life-lead {
@@ -551,4 +559,6 @@ onBeforeUnmount(() => {
   }
 }
 </style>
+
+
 
