@@ -19,7 +19,7 @@ defineProps({
       <p class="section-kicker dark">Моменты</p>
       <h2 class="section-title moments-title">Сцены, где ощущается движение служения</h2>
 
-      <div class="featured-media g-frame" :style="{ transform: `translateY(${-parallaxShift * 0.55}px)` }">
+      <div class="featured-media" :style="{ transform: `translateY(${-parallaxShift * 0.55}px)` }">
         <img :src="featuredPoster" alt="Кадр приветственного видео проекта" class="featured-poster" loading="lazy" />
         <div class="featured-overlay" aria-hidden="true"></div>
         <div class="featured-caption">

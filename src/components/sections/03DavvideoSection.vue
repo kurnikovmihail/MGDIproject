@@ -6,8 +6,10 @@ import communicationCard from '../../assets/card-communication.png'
 import learningCard from '../../assets/card-learning.png'
 import tripsCard from '../../assets/card-trips.png'
 import mgdiPatternImage from '../../assets/mgdi-pattern-strip.png'
+import cornerDecorImage from '../../assets/уголок для краев.png'
 
 const iconSet = [guitarCard, communicationCard, learningCard, tripsCard]
+const cornerDecorMask = `url(${cornerDecorImage})`
 const rowDurations = [55, 68, 60, 75]
 const patternRows = Array.from({ length: 12 }, (_, index) => ({
   id: `row-${index + 1}`,
@@ -238,13 +240,16 @@ onBeforeUnmount(() => {
 
 .portal-stage {
   position: relative;
-  --corner-size: 96px;
-  --corner-thickness: 16px;
-  --corner-offset: 18px;
+  --corner-width: 148px;
+  --corner-height: 114px;
+  --corner-offset: -34px;
+  --corner-mask-size-x: 208.5%;
+  --corner-mask-size-y: 241.4%;
+  --corner-color: var(--accent-lime);
   width: min(100%, 980px);
   margin-inline: auto;
   border-radius: 24px;
-  overflow: hidden;
+  overflow: visible;
   border: 1px solid rgba(255, 255, 255, 0.14);
   box-shadow: 0 30px 60px rgba(3, 6, 18, 0.45);
   background: #030715;
@@ -255,6 +260,7 @@ onBeforeUnmount(() => {
   width: 100%;
   height: clamp(240px, 42vw, 500px);
   object-fit: cover;
+  border-radius: inherit;
   opacity: 0.24;
   transform: scale(1.08);
   transition: opacity 1.05s ease, transform 1.05s ease;
@@ -264,6 +270,7 @@ onBeforeUnmount(() => {
   position: absolute;
   inset: 0;
   z-index: 2;
+  border-radius: inherit;
   background:
     linear-gradient(180deg, rgba(3, 7, 18, 0.12) 0%, rgba(3, 7, 18, 0.32) 100%),
     radial-gradient(circle at 50% 50%, rgba(17, 70, 216, 0.14), rgba(17, 70, 216, 0));
@@ -273,10 +280,10 @@ onBeforeUnmount(() => {
 .portal-corner {
   position: absolute;
   z-index: 6;
-  width: var(--corner-size);
-  height: var(--corner-size);
-  top: calc(50% - (var(--corner-size) / 2));
-  left: calc(50% - (var(--corner-size) / 2));
+  width: var(--corner-width);
+  height: var(--corner-height);
+  top: calc(50% - (var(--corner-height) / 2));
+  left: calc(50% - (var(--corner-width) / 2));
   opacity: 0;
   transform: scale(0.72) rotate(-5deg);
   transition:
@@ -286,44 +293,24 @@ onBeforeUnmount(() => {
     transform 0.92s cubic-bezier(0.2, 0.75, 0.18, 1);
 }
 
-.portal-corner::before,
-.portal-corner::after {
+.portal-corner::before {
   content: '';
   position: absolute;
-  background: color-mix(in srgb, var(--accent-lime) 92%, white 8%);
+  inset: 0;
+  background: var(--corner-color);
+  -webkit-mask-image: v-bind(cornerDecorMask);
+  mask-image: v-bind(cornerDecorMask);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: var(--corner-mask-size-x) var(--corner-mask-size-y);
+  mask-size: var(--corner-mask-size-x) var(--corner-mask-size-y);
   box-shadow: 0 10px 24px rgba(191, 211, 90, 0.24);
 }
 
-.portal-corner-left::before {
-  top: 0;
-  left: 0;
-  width: 72%;
-  height: var(--corner-thickness);
-  border-radius: 14px 4px 10px 4px;
-}
-
-.portal-corner-left::after {
-  top: 0;
-  left: 0;
-  width: var(--corner-thickness);
-  height: 72%;
-  border-radius: 14px 4px 10px 4px;
-}
-
 .portal-corner-right::before {
-  right: 0;
-  bottom: 0;
-  width: 72%;
-  height: var(--corner-thickness);
-  border-radius: 10px 4px 14px 4px;
-}
-
-.portal-corner-right::after {
-  right: 0;
-  bottom: 0;
-  width: var(--corner-thickness);
-  height: 72%;
-  border-radius: 10px 4px 14px 4px;
+  transform: rotate(180deg);
 }
 
 .portal-shutter {
@@ -332,6 +319,7 @@ onBeforeUnmount(() => {
   bottom: 0;
   width: 50%;
   z-index: 4;
+  border-radius: inherit;
   pointer-events: none;
   transition: transform 1.02s cubic-bezier(0.2, 0.72, 0.22, 1), opacity 1.02s ease;
 }
@@ -427,8 +415,8 @@ onBeforeUnmount(() => {
 }
 
 .life.is-portal-open .portal-corner-right {
-  top: calc(100% - var(--corner-offset) - var(--corner-size));
-  left: calc(100% - var(--corner-offset) - var(--corner-size));
+  top: calc(100% - var(--corner-offset) - var(--corner-height));
+  left: calc(100% - var(--corner-offset) - var(--corner-width));
   transition-delay: 0.06s;
 }
 
@@ -496,9 +484,9 @@ onBeforeUnmount(() => {
   }
 
   .portal-stage {
-    --corner-size: 72px;
-    --corner-thickness: 12px;
-    --corner-offset: 14px;
+    --corner-width: 104px;
+    --corner-height: 80px;
+    --corner-offset: -20px;
   }
 
   .portal-media {

@@ -65,7 +65,7 @@ onBeforeUnmount(() => {
       </h2>
 
       <div class="about-stage">
-        <figure class="about-media about-team g-frame-sm">
+        <figure class="about-media about-team">
           <img :src="teamPhoto" alt="Команда проекта МГДИ" loading="lazy" />
           <figcaption>Команда МГДИ</figcaption>
         </figure>
@@ -75,7 +75,7 @@ onBeforeUnmount(() => {
           <a class="btn btn-primary btn-small about-link" href="#why">Наша история</a>
         </div>
 
-        <figure class="about-media about-david g-frame-sm">
+        <figure class="about-media about-david">
           <img :src="davidPhoto" alt="Давид, основатель проекта МГДИ" loading="lazy" />
           <figcaption>Давид, основатель</figcaption>
         </figure>
