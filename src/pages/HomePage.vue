@@ -9,11 +9,10 @@ import MomentsSection from '../components/sections/05MomentsSection.vue'
 import FinalSection from '../components/sections/06FinalSection.vue'
 import { useScrollEffects } from '../composables/useScrollEffects'
 import {
-  galleryCards,
   whyCards
 } from '../data/homePageData'
 
-const { isScrolled, parallaxShift } = useScrollEffects()
+const { isScrolled } = useScrollEffects()
 </script>
 
 <template>
@@ -25,7 +24,7 @@ const { isScrolled, parallaxShift } = useScrollEffects()
       <Historyproect2Section />
       <ThreeDavvideoSection :cards="whyCards" />
       <Geogrf4Section />
-      <MomentsSection :cards="galleryCards" :parallax-shift="parallaxShift" />
+      <MomentsSection />
       <FinalSection />
     </main>
 
