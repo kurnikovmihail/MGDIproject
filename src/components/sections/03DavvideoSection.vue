@@ -224,16 +224,17 @@ onBeforeUnmount(() => {
 
 .life-lead {
   margin: 16px 0 26px;
-  max-width: 760px;
+  max-width: 64ch;
   color: rgba(255, 255, 255, 0.9);
-  font-size: 1.03rem;
-  line-height: 1.62;
+  font-size: 1.04rem;
+  line-height: 1.7;
   text-shadow: 0 2px 10px rgba(4, 8, 20, 0.32);
+  text-wrap: pretty;
 }
 
 .life-cards {
   margin-top: 8px;
-  align-items: start;
+  align-items: stretch;
 }
 
 .why-card {
@@ -250,6 +251,7 @@ onBeforeUnmount(() => {
   border: 1px solid rgba(255, 255, 255, 0.14);
   box-shadow: 0 18px 34px rgba(4, 8, 22, 0.24);
   isolation: isolate;
+  height: 100%;
   opacity: 0;
   transform: translateY(14px) scale(0.965);
   transition:
@@ -298,9 +300,9 @@ onBeforeUnmount(() => {
 .why-top {
   margin: 0;
   min-height: 2.5em;
-  font-size: 0.88rem;
+  font-size: 0.84rem;
   font-weight: 900;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.96);
   text-shadow:
@@ -324,13 +326,13 @@ onBeforeUnmount(() => {
 .why-bottom {
   margin: 0;
   min-height: 4.4em;
-  max-width: 230px;
+  max-width: 22ch;
   color: #c7d861;
   font-family: 'Montserrat', 'Segoe UI', sans-serif;
-  font-size: clamp(0.98rem, 1.08vw, 1.12rem);
+  font-size: clamp(1rem, 1.05vw, 1.14rem);
   font-weight: 800;
   letter-spacing: 0.012em;
-  line-height: 1.42;
+  line-height: 1.52;
   text-shadow:
     0 1px 0 rgba(0, 0, 0, 0.58),
     0 3px 14px rgba(6, 11, 24, 0.54),

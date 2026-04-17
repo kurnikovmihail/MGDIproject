@@ -98,12 +98,6 @@ const geoFacts = computed(() => [
 
 function handleRegionClick(region) {
   selectedRegion.value = region.code
-
-  console.info('[map_city_click]', {
-    city: cityByRegion.value[region.code]?.name ?? null,
-    region: region.name,
-    code: region.code
-  })
 }
 
 function handleRegionHover(region) {
@@ -285,9 +279,10 @@ onBeforeUnmount(() => {
 
 .geo-lead {
   margin: 14px 0 24px;
-  max-width: 720px;
+  max-width: 64ch;
   color: #44516d;
-  line-height: 1.58;
+  font-size: 1.01rem;
+  line-height: 1.64;
   text-wrap: pretty;
 }
 
@@ -321,7 +316,7 @@ onBeforeUnmount(() => {
 
 .geo-fact-label {
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   font-size: 0.65rem;
   color: #556283;
   font-weight: 700;
@@ -375,10 +370,10 @@ onBeforeUnmount(() => {
   margin: 0;
   font-family: 'Dela Gothic One', sans-serif;
   font-weight: 400;
-  font-size: 1.02rem;
+  font-size: 1.04rem;
   color: #15244a;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
 }
 
 .geo-city-list {
@@ -442,11 +437,14 @@ onBeforeUnmount(() => {
 
 .geo-city-name {
   font-weight: 700;
+  font-size: 0.98rem;
+  line-height: 1.3;
   color: #122349;
 }
 
 .geo-city-region {
-  font-size: 0.8rem;
+  font-size: 0.82rem;
+  line-height: 1.35;
   color: #5a6782;
 }
 

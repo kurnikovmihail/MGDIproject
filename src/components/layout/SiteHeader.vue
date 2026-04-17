@@ -107,8 +107,9 @@ const navItems = [
 .main-nav a {
   color: rgba(255, 255, 255, 0.88);
   font-weight: 600;
-  font-size: 0.84rem;
-  letter-spacing: 0.09em;
+  font-size: 0.82rem;
+  line-height: 1.25;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   transition: color 0.25s ease;
 }
@@ -127,9 +128,9 @@ const navItems = [
   background: rgba(255, 255, 255, 0.03);
   margin-right: -12px;
   color: rgba(255, 255, 255, 0.96);
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
   transition: background 0.22s ease, border-color 0.22s ease, transform 0.22s ease;
 }

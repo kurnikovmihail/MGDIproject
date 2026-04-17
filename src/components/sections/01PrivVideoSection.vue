@@ -112,10 +112,11 @@ import heroVideo from '../../assets/hero_bw_desktop_1920x1080.mp4'
 
 .hero-lead {
   margin: 0;
-  max-width: 660px;
+  max-width: 58ch;
   color: rgba(255, 255, 255, 0.84);
-  font-size: 1.04rem;
-  line-height: 1.55;
+  font-size: 1.06rem;
+  line-height: 1.66;
+  text-wrap: pretty;
 }
 
 .hero-actions {
@@ -134,9 +135,9 @@ import heroVideo from '../../assets/hero_bw_desktop_1920x1080.mp4'
   background: rgba(255, 255, 255, 0.04);
   color: rgba(255, 255, 255, 0.96);
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   backdrop-filter: blur(5px);
   transition: background 0.24s ease, border-color 0.24s ease, transform 0.24s ease;
 }
@@ -157,7 +158,7 @@ import heroVideo from '../../assets/hero_bw_desktop_1920x1080.mp4'
   }
 
   .hero-lead {
-    font-size: 0.95rem;
+    font-size: 1rem;
   }
 
   .hero-btn {

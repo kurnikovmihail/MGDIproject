@@ -158,10 +158,10 @@ const patternRows = Array.from({ length: 6 }, (_, index) => ({
 
 .final-text {
   margin: 18px 0 30px;
-  max-width: 680px;
+  max-width: 62ch;
   color: rgba(255, 255, 255, 0.9);
-  font-size: 1.02rem;
-  line-height: 1.62;
+  font-size: 1.03rem;
+  line-height: 1.68;
   text-shadow: 0 2px 10px rgba(4, 8, 20, 0.32);
   text-wrap: pretty;
 }
@@ -174,6 +174,7 @@ const patternRows = Array.from({ length: 6 }, (_, index) => ({
 
 .final-btn {
   min-width: 210px;
+  font-size: 0.95rem;
   letter-spacing: 0.01em;
 }
 

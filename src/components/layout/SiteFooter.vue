@@ -94,13 +94,16 @@ const contactLinks = [
 .footer-muted {
   margin: 0;
   max-width: 280px;
+  font-size: 1rem;
+  line-height: 1.62;
+  text-wrap: pretty;
   color: rgba(255, 255, 255, 0.72);
 }
 
 .footer-col h4 {
   margin: 0 0 12px;
-  font-size: 0.72rem;
-  letter-spacing: 0.22em;
+  font-size: 0.74rem;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.6);
 }
@@ -112,6 +115,8 @@ const contactLinks = [
 
 .footer-links a {
   width: fit-content;
+  font-size: 0.96rem;
+  line-height: 1.38;
   color: rgba(255, 255, 255, 0.84);
   transition: color 0.2s ease;
 }

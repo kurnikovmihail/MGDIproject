@@ -1,7 +1,7 @@
 ﻿<script setup>
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import teamPhoto from '../../assets/hero-cover.jpg'
-import davidPhoto from '../../assets/david-portrait.jpg'
+import davidPhoto from '../../assets/давид.jpg'
 
 const aboutParagraphs = [
   'Привет. Я Давид, и МГДИ появился из простой идеи: дать ребятам пространство, где они могут полностью посвятить себя и свое время для духовной роста и практики.',
@@ -109,40 +109,55 @@ onBeforeUnmount(() => {
 }
 
 .about-stage {
+  --about-card-min-height: clamp(400px, 32vw, 480px);
   margin-top: 30px;
   display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  align-items: start;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
   gap: var(--gutter-desktop);
 }
 
 .about-text {
-  grid-column: 5 / span 4;
-  align-self: start;
-  max-width: 610px;
+  min-height: var(--about-card-min-height);
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: none;
+  padding: clamp(18px, 2vw, 28px);
+  border-radius: var(--radius-lg);
+  border: var(--border-soft);
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.9) 0%, rgba(245, 248, 255, 0.84) 100%);
+  box-shadow: var(--shadow-soft);
   opacity: 0;
-  transform: translateY(16px);
+  transform: translateY(22px);
   transition: opacity 0.56s ease, transform 0.56s ease;
 }
 
 .about-text p {
   margin: 0 0 14px;
   color: var(--text-muted);
-  font-size: 1.01rem;
-  line-height: 1.6;
+  font-size: clamp(0.96rem, 0.16vw + 0.9rem, 1.02rem);
+  line-height: 1.62;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  hyphens: auto;
+  text-wrap: pretty;
 }
 
 .about-text p:last-of-type {
-  margin-bottom: 22px;
+  margin-bottom: 0;
 }
 
 .about-media {
+  min-height: var(--about-card-min-height);
   position: relative;
   border-radius: var(--radius-lg);
   overflow: hidden;
   box-shadow: var(--shadow-soft);
   border: var(--border-soft);
   opacity: 0;
+  transform: translateY(22px);
   transition: transform 0.9s ease-out, opacity 0.9s ease-out, box-shadow 0.28s ease;
 }
 
@@ -174,22 +189,16 @@ onBeforeUnmount(() => {
 }
 
 .about-team {
-  grid-column: 1 / span 4;
-  align-self: start;
-  height: 336px;
-  transform: translateX(-52px);
+  grid-column: auto;
 }
 
 .about-david {
-  grid-column: 10 / span 3;
-  align-self: start;
-  height: 332px;
-  transform: translateX(58px);
+  grid-column: auto;
   transition-delay: 0.18s;
 }
 
 .about-david img {
-  object-position: center 16%;
+  object-position: center 14%;
 }
 
 .about.is-revealed .about-text {
@@ -200,16 +209,12 @@ onBeforeUnmount(() => {
 .about.is-revealed .about-team,
 .about.is-revealed .about-david {
   opacity: 1;
-  transform: translateX(0);
+  transform: translateY(0);
 }
 
 @media (max-width: 1180px) {
-  .about-team {
-    height: 296px;
-  }
-
-  .about-david {
-    height: 292px;
+  .about-stage {
+    --about-card-min-height: clamp(390px, 38vw, 500px);
   }
 }
 
@@ -224,6 +229,7 @@ onBeforeUnmount(() => {
   .about-david,
   .about-text,
   .about-team {
+    height: auto;
     width: 100%;
     max-width: 560px;
     margin: 0;
@@ -232,7 +238,7 @@ onBeforeUnmount(() => {
 
   .about-david {
     order: 1;
-    height: 230px;
+    height: 260px;
   }
 
   .about-text {
@@ -241,7 +247,7 @@ onBeforeUnmount(() => {
 
   .about-team {
     order: 3;
-    height: 264px;
+    height: 280px;
   }
 
   .about.is-revealed .about-david,

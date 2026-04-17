@@ -15,7 +15,11 @@
   display: grid;
   place-items: center;
   text-align: center;
-  background: var(--bg-warm);
+  background: var(--bg-milk);
+}
+
+.not-found .container {
+  max-width: 56ch;
 }
 
 .not-found-code {
@@ -30,11 +34,17 @@ h1 {
   margin: 10px 0;
   font-family: 'Dela Gothic One', sans-serif;
   font-weight: 400;
+  line-height: 0.95;
+  letter-spacing: -0.015em;
   font-size: clamp(2rem, 5vw, 3.4rem);
+  text-wrap: balance;
 }
 
 p {
   margin: 0 0 22px;
+  font-size: 1.02rem;
+  line-height: 1.64;
+  text-wrap: pretty;
   color: #3f475a;
 }
 </style>

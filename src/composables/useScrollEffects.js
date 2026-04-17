@@ -2,12 +2,10 @@
 
 export function useScrollEffects() {
   const isScrolled = ref(false)
-  const parallaxShift = ref(0)
 
   const updateScrollState = () => {
     const scrollY = window.scrollY || 0
     isScrolled.value = scrollY > 24
-    parallaxShift.value = Math.min(52, scrollY * 0.08)
   }
 
   onMounted(() => {
@@ -20,7 +18,6 @@ export function useScrollEffects() {
   })
 
   return {
-    isScrolled,
-    parallaxShift
+    isScrolled
   }
 }

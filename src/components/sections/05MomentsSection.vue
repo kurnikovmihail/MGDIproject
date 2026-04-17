@@ -410,8 +410,8 @@ onBeforeUnmount(() => {
   margin: 0;
   max-width: 62ch;
   color: var(--text-muted);
-  line-height: 1.62;
-  font-size: 1.03rem;
+  line-height: 1.66;
+  font-size: 1.02rem;
   text-wrap: pretty;
   overflow-wrap: break-word;
 }
@@ -541,9 +541,9 @@ onBeforeUnmount(() => {
 }
 
 .moment-caption-title {
-  font-size: clamp(0.9rem, 1.16vw, 1.2rem);
+  font-size: clamp(0.94rem, 1.12vw, 1.2rem);
   font-weight: 700;
-  line-height: 1.18;
+  line-height: 1.22;
   text-wrap: balance;
   overflow-wrap: break-word;
 }
@@ -558,8 +558,8 @@ onBeforeUnmount(() => {
     opacity 0.32s ease,
     transform 0.35s ease;
   color: rgba(255, 255, 255, 0.86);
-  font-size: 0.88rem;
-  line-height: 1.45;
+  font-size: 0.9rem;
+  line-height: 1.5;
   overflow-wrap: break-word;
 }
 
@@ -707,13 +707,16 @@ onBeforeUnmount(() => {
 
 .viewer-description {
   margin: 0;
-  line-height: 1.58;
+  max-width: 34ch;
+  font-size: 1rem;
+  line-height: 1.64;
   color: rgba(255, 255, 255, 0.88);
 }
 
 .viewer-location {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 0.92rem;
+  line-height: 1.45;
   color: rgba(255, 255, 255, 0.75);
 }
 

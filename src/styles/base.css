@@ -37,6 +37,12 @@
   --corner-sm-width: 72px;
   --corner-sm-height: 55px;
   --corner-sm-inset: -12px;
+
+  --type-kicker-size: clamp(0.72rem, 0.2vw + 0.68rem, 0.8rem);
+  --type-kicker-tracking: 0.28em;
+  --type-body-size: 1.02rem;
+  --type-body-line: 1.62;
+  --type-body-measure: 66ch;
 }
 
 * {
@@ -52,8 +58,9 @@ body {
   font-family: 'Montserrat', 'Segoe UI', sans-serif;
   color: var(--text-main);
   background: var(--bg-milk);
-  line-height: 1.45;
+  line-height: 1.52;
   text-rendering: optimizeLegibility;
+  font-kerning: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -103,8 +110,9 @@ a {
 
 .section-kicker {
   margin: 0 0 14px;
-  font-size: 0.76rem;
-  letter-spacing: 0.3em;
+  font-size: var(--type-kicker-size);
+  line-height: 1.25;
+  letter-spacing: var(--type-kicker-tracking);
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.76);
   font-weight: 700;
@@ -119,16 +127,18 @@ a {
   font-family: 'Dela Gothic One', sans-serif;
   font-weight: 400;
   letter-spacing: -0.02em;
-  line-height: 0.98;
+  line-height: 0.95;
   font-size: clamp(2rem, 5vw, 4.6rem);
+  text-wrap: balance;
 }
 
 .section-text {
   margin: 20px 0 42px;
-  max-width: 780px;
+  max-width: var(--type-body-measure);
   color: var(--text-muted);
-  font-size: 1.04rem;
-  line-height: 1.6;
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  text-wrap: pretty;
 }
 
 .accent,
@@ -150,6 +160,7 @@ a {
   justify-content: center;
   border-radius: 999px;
   border: 1px solid transparent;
+  font-size: 0.95rem;
   font-weight: 700;
   line-height: 1;
   cursor: pointer;
@@ -188,7 +199,7 @@ a {
 
 .btn-small {
   padding: 10px 18px;
-  font-size: 0.86rem;
+  font-size: 0.84rem;
 }
 
 .orbit-chip {
