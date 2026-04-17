@@ -1,15 +1,12 @@
-﻿<script setup>
+<script setup>
 import { onBeforeUnmount, onMounted, ref } from 'vue'
-import serviceVideoPoster from '../../assets/service-video-poster.jpg'
 import guitarCard from '../../assets/card-guitar.png'
 import communicationCard from '../../assets/card-communication.png'
 import learningCard from '../../assets/card-learning.png'
 import tripsCard from '../../assets/card-trips.png'
 import mgdiPatternImage from '../../assets/mgdi-pattern-strip.png'
-import cornerDecorImage from '../../assets/уголок для краев.png'
 
 const iconSet = [guitarCard, communicationCard, learningCard, tripsCard]
-const cornerDecorMask = `url(${cornerDecorImage})`
 const rowDurations = [62, 76, 68, 84]
 const patternRows = Array.from({ length: 10 }, (_, index) => ({
   id: `row-${index + 1}`,
@@ -31,14 +28,6 @@ const props = defineProps({
     default:
       'Мы верим, что здесь служение Богу становится живым делом: через команду, заботу о людях и реальные шаги, которые меняют среду вокруг.'
   },
-  posterSrc: {
-    type: String,
-    default: serviceVideoPoster
-  },
-  posterAlt: {
-    type: String,
-    default: 'Приветственное видео о служении в проекте МГДИ'
-  },
   cards: {
     type: Array,
     default: () => []
@@ -46,12 +35,12 @@ const props = defineProps({
 })
 
 const sectionRef = ref(null)
-const isPortalOpen = ref(false)
+const isCardsOpen = ref(false)
 let observer = null
 
 onMounted(() => {
   if (!('IntersectionObserver' in window)) {
-    isPortalOpen.value = true
+    isCardsOpen.value = true
     return
   }
 
@@ -62,12 +51,12 @@ onMounted(() => {
         return
       }
 
-      isPortalOpen.value = true
+      isCardsOpen.value = true
       observer.disconnect()
       observer = null
     },
     {
-      threshold: 0.32
+      threshold: 0.3
     }
   )
 
@@ -90,7 +79,7 @@ onBeforeUnmount(() => {
     ref="sectionRef"
     class="life section-block"
     data-block-name="3davvideo"
-    :class="{ 'is-portal-open': isPortalOpen }"
+    :class="{ 'is-cards-open': isCardsOpen }"
   >
     <div class="mgdi-pattern" aria-hidden="true">
       <div
@@ -112,20 +101,13 @@ onBeforeUnmount(() => {
       <h2 class="section-title life-title">{{ props.title }}</h2>
       <p class="life-lead">{{ props.lead }}</p>
 
-      <div class="portal-stage">
-        <div class="portal-corner portal-corner-left" aria-hidden="true"></div>
-        <div class="portal-corner portal-corner-right" aria-hidden="true"></div>
-
-        <div class="portal-shutter portal-shutter-left" aria-hidden="true"></div>
-        <div class="portal-shutter portal-shutter-right" aria-hidden="true"></div>
-
-        <img :src="props.posterSrc" :alt="props.posterAlt" class="portal-media" loading="lazy" />
-        <div class="portal-overlay" aria-hidden="true"></div>
-        <p class="portal-tag">Приветственное видео</p>
-      </div>
-
       <div v-if="props.cards.length" class="grid-12 why-grid life-cards">
-        <article v-for="(card, index) in props.cards" :key="card.title" class="why-card col-3">
+        <article
+          v-for="(card, index) in props.cards"
+          :key="card.title"
+          class="why-card col-3"
+          :style="{ '--card-delay': `${index * 90}ms` }"
+        >
           <p class="why-top">{{ card.title }}</p>
 
           <div class="why-icon-shell" aria-hidden="true">
@@ -241,7 +223,7 @@ onBeforeUnmount(() => {
 }
 
 .life-lead {
-  margin: 16px 0 28px;
+  margin: 16px 0 26px;
   max-width: 760px;
   color: rgba(255, 255, 255, 0.9);
   font-size: 1.03rem;
@@ -249,131 +231,68 @@ onBeforeUnmount(() => {
   text-shadow: 0 2px 10px rgba(4, 8, 20, 0.32);
 }
 
-.portal-stage {
-  position: relative;
-  --corner-width: 128px;
-  --corner-height: 98px;
-  --corner-offset: -18px;
-  --corner-mask-size-x: 208.5%;
-  --corner-mask-size-y: 241.4%;
-  --corner-color: var(--accent-lime);
-  width: min(100%, 980px);
-  margin-inline: auto;
-  border-radius: 24px;
-  overflow: visible;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow: 0 30px 60px rgba(3, 6, 18, 0.45);
-  background: #030715;
-  isolation: isolate;
-}
-
-.portal-media {
-  width: 100%;
-  height: clamp(240px, 42vw, 500px);
-  object-fit: cover;
-  border-radius: inherit;
-  opacity: 0.24;
-  transform: scale(1.08);
-  transition: opacity 1.05s ease, transform 1.05s ease;
-}
-
-.portal-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  border-radius: inherit;
-  background:
-    linear-gradient(180deg, rgba(3, 7, 18, 0.12) 0%, rgba(3, 7, 18, 0.32) 100%),
-    radial-gradient(circle at 50% 50%, rgba(17, 70, 216, 0.14), rgba(17, 70, 216, 0));
-  pointer-events: none;
-}
-
-.portal-corner {
-  position: absolute;
-  z-index: 6;
-  width: var(--corner-width);
-  height: var(--corner-height);
-  top: calc(50% - (var(--corner-height) / 2));
-  left: calc(50% - (var(--corner-width) / 2));
-  opacity: 0;
-  transform: scale(0.72) rotate(-5deg);
-  transition:
-    top 0.92s cubic-bezier(0.2, 0.75, 0.18, 1),
-    left 0.92s cubic-bezier(0.2, 0.75, 0.18, 1),
-    opacity 0.46s ease,
-    transform 0.92s cubic-bezier(0.2, 0.75, 0.18, 1);
-}
-
-.portal-corner::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: var(--corner-color);
-  -webkit-mask-image: v-bind(cornerDecorMask);
-  mask-image: v-bind(cornerDecorMask);
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-position: center;
-  mask-position: center;
-  -webkit-mask-size: var(--corner-mask-size-x) var(--corner-mask-size-y);
-  mask-size: var(--corner-mask-size-x) var(--corner-mask-size-y);
-  box-shadow: 0 8px 18px rgba(191, 211, 90, 0.2);
-}
-
-.portal-corner-right::before {
-  transform: rotate(180deg);
-}
-
-.portal-shutter {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 50%;
-  z-index: 4;
-  border-radius: inherit;
-  pointer-events: none;
-  transition: transform 1.02s cubic-bezier(0.2, 0.72, 0.22, 1), opacity 1.02s ease;
-}
-
-.portal-shutter-left {
-  left: 0;
-  background: linear-gradient(90deg, rgba(4, 8, 21, 0.98) 0%, rgba(4, 8, 21, 0.8) 100%);
-}
-
-.portal-shutter-right {
-  right: 0;
-  background: linear-gradient(270deg, rgba(4, 8, 21, 0.98) 0%, rgba(4, 8, 21, 0.8) 100%);
-}
-
-.portal-tag {
-  position: absolute;
-  left: 20px;
-  bottom: 16px;
-  z-index: 6;
-  margin: 0;
-  padding: 8px 12px;
-  border-radius: 999px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-size: 0.72rem;
-  color: rgba(255, 255, 255, 0.94);
-  background: rgba(8, 16, 38, 0.65);
-  border: 1px solid rgba(255, 255, 255, 0.26);
-  backdrop-filter: blur(6px);
-}
-
 .life-cards {
-  margin-top: 34px;
+  margin-top: 8px;
   align-items: start;
 }
 
 .why-card {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   gap: 12px;
-  padding: 0 8px;
+  padding: 16px 10px 12px;
+  border-radius: 20px;
+  overflow: hidden;
+  background: rgba(5, 14, 38, 0.26);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 18px 34px rgba(4, 8, 22, 0.24);
+  isolation: isolate;
+  opacity: 0;
+  transform: translateY(14px) scale(0.965);
+  transition:
+    transform 0.82s cubic-bezier(0.2, 0.75, 0.18, 1),
+    opacity 0.72s ease,
+    box-shadow 0.36s ease;
+  transition-delay: var(--card-delay, 0ms);
+}
+
+.why-card::before,
+.why-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 52%;
+  z-index: 2;
+  pointer-events: none;
+  transition:
+    transform 1.02s cubic-bezier(0.2, 0.72, 0.22, 1),
+    opacity 1.02s ease;
+  transition-delay: var(--card-delay, 0ms);
+}
+
+.why-card::before {
+  left: 0;
+  background: linear-gradient(90deg, rgba(4, 8, 21, 0.98) 0%, rgba(4, 8, 21, 0.8) 100%);
+}
+
+.why-card::after {
+  right: 0;
+  background: linear-gradient(270deg, rgba(4, 8, 21, 0.98) 0%, rgba(4, 8, 21, 0.8) 100%);
+}
+
+.why-card > * {
+  position: relative;
+  z-index: 3;
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    transform 0.66s cubic-bezier(0.2, 0.75, 0.18, 1),
+    opacity 0.62s ease;
+  transition-delay: calc(var(--card-delay, 0ms) + 130ms);
 }
 
 .why-top {
@@ -418,36 +337,29 @@ onBeforeUnmount(() => {
     0 0 10px rgba(199, 216, 97, 0.2);
 }
 
-.life.is-portal-open .portal-corner {
+.life.is-cards-open .why-card {
   opacity: 1;
-  transform: scale(1) rotate(0deg);
+  transform: translateY(0) scale(1);
 }
 
-.life.is-portal-open .portal-corner-left {
-  top: var(--corner-offset);
-  left: var(--corner-offset);
-}
-
-.life.is-portal-open .portal-corner-right {
-  top: calc(100% - var(--corner-offset) - var(--corner-height));
-  left: calc(100% - var(--corner-offset) - var(--corner-width));
-  transition-delay: 0.06s;
-}
-
-.life.is-portal-open .portal-shutter-left {
-  transform: translateX(-104%);
+.life.is-cards-open .why-card::before {
+  transform: translateX(-108%);
   opacity: 0;
 }
 
-.life.is-portal-open .portal-shutter-right {
-  transform: translateX(104%);
+.life.is-cards-open .why-card::after {
+  transform: translateX(108%);
   opacity: 0;
 }
 
-.life.is-portal-open .portal-media {
+.life.is-cards-open .why-card > * {
   opacity: 1;
-  transform: scale(1);
-  transition-delay: 0.12s;
+  transform: translateY(0);
+}
+
+.why-card:hover {
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: 0 24px 40px rgba(4, 8, 22, 0.3);
 }
 
 @keyframes mgdi-slide-left {
@@ -474,7 +386,6 @@ onBeforeUnmount(() => {
   .mgdi-row:nth-child(n + 9) {
     display: none;
   }
-
 }
 
 @media (max-width: 900px) {
@@ -496,22 +407,16 @@ onBeforeUnmount(() => {
     margin-bottom: 20px;
   }
 
-  .portal-stage {
-    --corner-width: 92px;
-    --corner-height: 70px;
-    --corner-offset: -12px;
-  }
-
-  .portal-media {
-    height: clamp(200px, 52vw, 360px);
-  }
-
   .life::after {
     height: 136px;
   }
 
   .life-cards {
-    margin-top: 24px;
+    margin-top: 6px;
+  }
+
+  .why-card {
+    padding: 14px 8px 10px;
   }
 
   .why-top {
@@ -529,9 +434,10 @@ onBeforeUnmount(() => {
 
 @media (prefers-reduced-motion: reduce) {
   .mgdi-track,
-  .portal-media,
-  .portal-corner,
-  .portal-shutter {
+  .why-card,
+  .why-card::before,
+  .why-card::after,
+  .why-card > * {
     transition: none;
   }
 
@@ -539,27 +445,16 @@ onBeforeUnmount(() => {
     animation: none;
   }
 
-  .portal-media {
+  .why-card,
+  .why-card > * {
     opacity: 1;
     transform: none;
   }
 
-  .portal-corner {
-    opacity: 1;
+  .why-card::before,
+  .why-card::after {
+    opacity: 0;
     transform: none;
-  }
-
-  .portal-shutter-left {
-    opacity: 0;
-    transform: translateX(-104%);
-  }
-
-  .portal-shutter-right {
-    opacity: 0;
-    transform: translateX(104%);
   }
 }
 </style>
-
-
-
