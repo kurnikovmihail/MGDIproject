@@ -1,6 +1,10 @@
 ﻿<script setup>
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import RussiaMap from '../ui/russia-map/RussiaMap.vue'
+import cityBackdropPerm from '../../assets/пермь на фонт.jpg'
+import cityBackdropCherepovets from '../../assets/черепоыец на фон.jpg'
+import cityBackdropOmsk from '../../assets/омск на фон.jpg'
+import cityBackdropKrasnoyarsk from '../../assets/красноярск на фон.jpg'
 
 const props = defineProps({
   label: {
@@ -10,113 +14,34 @@ const props = defineProps({
   title: {
     type: String,
     default: 'География проекта МГДИ'
-  },
-  description: {
-    type: String,
-    default: 'Кликни по региону на карте или выбери город из списка справа.'
-  },
-  ctaText: {
-    type: String,
-    default: 'Открыть проект в новом регионе'
-  },
-  ctaUrl: {
-    type: String,
-    default: '#final'
   }
 })
 
-const cities = Object.freeze([
-  {
-    id: 'cherepovets',
-    name: 'Череповец',
-    regionCode: 'VLG',
-    regionName: 'Вологодская область'
-  },
-  {
-    id: 'perm',
-    name: 'Пермь',
-    regionCode: 'PER',
-    regionName: 'Пермский край'
-  },
-  {
-    id: 'omsk',
-    name: 'Омск',
-    regionCode: 'OMS',
-    regionName: 'Омская область'
-  },
-  {
-    id: 'krasnoyarsk',
-    name: 'Красноярск',
-    regionCode: 'KYA',
-    regionName: 'Красноярский край'
-  }
+const cityBackdropByRegion = Object.freeze({
+  PER: cityBackdropPerm,
+  VLG: cityBackdropCherepovets,
+  OMS: cityBackdropOmsk,
+  KYA: cityBackdropKrasnoyarsk
+})
+const cityBackdropSources = Object.freeze([
+  cityBackdropPerm,
+  cityBackdropCherepovets,
+  cityBackdropOmsk,
+  cityBackdropKrasnoyarsk
 ])
 
+const activeRegions = Object.freeze(['PER', 'VLG', 'OMS', 'KYA'])
 const selectedRegion = ref('PER')
-const hoveredRegion = ref(null)
 const sectionRef = ref(null)
 const isLive = ref(false)
 let observer = null
-
-const activeRegions = computed(() => [...new Set(cities.map((city) => city.regionCode))])
-
-const cityByRegion = computed(() => {
-  return Object.fromEntries(cities.map((city) => [city.regionCode, city]))
+const selectedCityPhoto = computed(() => {
+  const regionCode = selectedRegion.value || 'PER'
+  return cityBackdropByRegion[regionCode] ?? cityBackdropPerm
 })
-
-const selectedCity = computed(() => cityByRegion.value[selectedRegion.value] ?? null)
-
-const currentRegion = computed(() => {
-  if (hoveredRegion.value) {
-    return hoveredRegion.value
-  }
-
-  if (selectedCity.value) {
-    return {
-      code: selectedCity.value.regionCode,
-      name: selectedCity.value.regionName
-    }
-  }
-
-  return null
-})
-
-const geoFacts = computed(() => [
-  {
-    value: cities.length,
-    label: 'городов'
-  },
-  {
-    value: activeRegions.value.length,
-    label: 'региона'
-  },
-  {
-    value: selectedCity.value?.name ?? '—',
-    label: 'в фокусе'
-  }
-])
 
 function handleRegionClick(region) {
   selectedRegion.value = region.code
-}
-
-function handleRegionHover(region) {
-  hoveredRegion.value = region
-}
-
-function selectCity(city) {
-  selectedRegion.value = city.regionCode
-}
-
-function highlightCity(city) {
-  hoveredRegion.value = {
-    code: city.regionCode,
-    name: city.regionName
-  }
-}
-
-function clearCityHighlight() {
-  hoveredRegion.value = null
 }
 
 onMounted(() => {
@@ -162,55 +87,38 @@ onBeforeUnmount(() => {
     data-block-name="4geogrf"
     :class="{ 'is-live': isLive }"
   >
+    <div class="geo-city-backdrop" aria-hidden="true">
+      <img class="geo-city-backdrop-image" :src="selectedCityPhoto" alt="" loading="lazy" />
+    </div>
+
+    <div class="geo-city-preload" aria-hidden="true">
+      <img v-for="src in cityBackdropSources" :key="src" :src="src" alt="" />
+    </div>
+
     <div class="container geo-shell">
       <p class="section-kicker dark geo-kicker">{{ props.label }}</p>
       <h2 class="section-title geo-title">{{ props.title }}</h2>
-      <p class="geo-lead">{{ props.description }}</p>
-
-      <div class="geo-facts" aria-label="Ключевые факты по географии проекта">
-        <div v-for="fact in geoFacts" :key="fact.label" class="geo-fact">
-          <span class="geo-fact-value">{{ fact.value }}</span>
-          <span class="geo-fact-label">{{ fact.label }}</span>
-        </div>
-      </div>
 
       <div class="geo-layout">
-        <div class="geo-map-card g-frame-sm">
+        <div class="geo-map-card">
           <RussiaMap
             class-name="geo-map"
             :selected-region="selectedRegion"
             :active-regions="activeRegions"
             @region-click="handleRegionClick"
-            @region-hover="handleRegionHover"
           />
-        </div>
 
-        <aside class="geo-side-card">
-          <p class="geo-side-title">Города на карте</p>
-
-          <ul class="geo-city-list">
-            <li v-for="city in cities" :key="city.id">
-              <button
-                type="button"
-                class="geo-city-item"
-                :class="{ 'is-active': city.regionCode === selectedRegion }"
-                @click="selectCity(city)"
-                @mouseenter="highlightCity(city)"
-                @mouseleave="clearCityHighlight"
-              >
-                <span class="geo-city-name">{{ city.name }}</span>
-                <span class="geo-city-region">{{ city.regionName }}</span>
-              </button>
-            </li>
-          </ul>
-
-          <div class="geo-current" v-if="currentRegion">
-            <p class="geo-current-label">Сейчас выбран регион</p>
-            <p class="geo-current-name">{{ currentRegion.name }}</p>
+          <div class="geo-map-legend" aria-label="Обозначения карты">
+            <span class="geo-map-legend-item">
+              <span class="geo-map-legend-dot is-active" aria-hidden="true"></span>
+              Города проекта
+            </span>
+            <span class="geo-map-legend-item">
+              <span class="geo-map-legend-dot is-selected" aria-hidden="true"></span>
+              Выбранный регион
+            </span>
           </div>
-
-          <a class="btn btn-primary btn-small geo-cta" :href="props.ctaUrl">{{ props.ctaText }}</a>
-        </aside>
+        </div>
       </div>
     </div>
   </section>
@@ -220,18 +128,64 @@ onBeforeUnmount(() => {
 .geo {
   position: relative;
   overflow: hidden;
-  --surface-border: 1px solid rgba(16, 26, 51, 0.14);
-  --surface-radius: var(--radius-lg);
-  --surface-shadow: var(--shadow-soft);
-  background-color: #ece8de;
+  background-color: #d9dee7;
+}
+
+.geo-city-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.geo-city-backdrop::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(226, 231, 240, 0.24) 0%,
+    rgba(226, 231, 240, 0.1) 38%,
+    rgba(226, 231, 240, 0.26) 100%
+  );
+}
+
+.geo-city-backdrop-image {
+  position: absolute;
+  inset: -3%;
+  width: 106%;
+  height: 106%;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0.82;
+  transform: scale(1.03);
+  filter: grayscale(1) saturate(0) contrast(1.16) brightness(0.97);
+}
+
+.geo-city-preload {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  inset: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.geo-city-preload img {
+  inline-size: 1px;
+  block-size: 1px;
 }
 
 .geo::before,
 .geo::after {
   content: '';
   position: absolute;
+  z-index: 0;
   border-radius: 999px;
   pointer-events: none;
+  opacity: 0;
 }
 
 .geo::before {
@@ -268,262 +222,95 @@ onBeforeUnmount(() => {
 
 .geo-kicker {
   letter-spacing: 0.34em;
-  color: rgba(16, 25, 51, 0.68);
+  color: var(--primary);
 }
 
 .geo-title {
+  margin-bottom: clamp(14px, 1.8vw, 22px);
   max-width: 880px;
-  color: #101a35;
+  color: var(--primary);
   text-wrap: balance;
 }
 
-.geo-lead {
-  margin: 14px 0 24px;
-  max-width: 64ch;
-  color: #44516d;
-  font-size: 1.01rem;
-  line-height: 1.64;
-  text-wrap: pretty;
-}
-
-.geo-facts {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-  margin-bottom: 18px;
-}
-
-.geo-fact {
-  min-height: 68px;
-  display: grid;
-  align-content: center;
-  gap: 2px;
-  border-radius: 14px;
-  border: 1px solid rgba(16, 26, 51, 0.13);
-  background:
-    linear-gradient(170deg, rgba(255, 255, 255, 0.88) 0%, rgba(244, 247, 255, 0.86) 100%),
-    radial-gradient(circle at 12% 18%, rgba(191, 211, 90, 0.16), rgba(191, 211, 90, 0) 38%);
-  padding: 10px 12px;
-  box-shadow: 0 10px 22px rgba(16, 26, 51, 0.09);
-}
-
-.geo-fact-value {
-  font-family: 'Dela Gothic One', sans-serif;
-  font-size: clamp(1.08rem, 2vw, 1.42rem);
-  line-height: 1;
-  color: #102149;
-}
-
-.geo-fact-label {
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: 0.65rem;
-  color: #556283;
-  font-weight: 700;
-}
-
 .geo-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
-  gap: 18px;
-  align-items: start;
+  margin-top: clamp(8px, 1.2vw, 14px);
+  display: block;
 }
 
 .geo-map-card {
   position: relative;
-  border-radius: var(--surface-radius);
-  border: var(--surface-border);
-  background: linear-gradient(165deg, rgba(255, 255, 255, 0.9) 0%, rgba(244, 248, 255, 0.9) 100%);
-  box-shadow: var(--surface-shadow);
-  padding: clamp(14px, 2vw, 24px);
-  will-change: transform;
-  transition: transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.32s ease;
+  border-radius: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+  will-change: auto;
+  transition: none;
 }
 
 .geo-map {
   width: 100%;
+  --map-max-inline-size: 1180px;
+  --map-margin-inline: auto 0;
+  --map-clip-path: inset(20% 0 0 0);
+}
+
+.geo-map-legend {
+  margin-top: clamp(10px, 1.3vw, 14px);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+}
+
+.geo-map-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border-radius: 999px;
+  border: 1px solid rgba(16, 26, 51, 0.14);
+  background: rgba(255, 255, 255, 0.72);
+  padding: 5px 10px;
+  color: var(--primary);
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  font-weight: 600;
+}
+
+.geo-map-legend-dot {
+  inline-size: 9px;
+  block-size: 9px;
+  border-radius: 999px;
+  border: 1.8px solid rgba(12, 14, 20, 0.95);
+  background: transparent;
+  box-shadow: none;
+}
+
+.geo-map-legend-dot.is-active {
+  background: transparent;
+  border-color: rgba(12, 14, 20, 0.95);
+}
+
+.geo-map-legend-dot.is-selected {
+  background: rgba(255, 255, 255, 0.98);
+  border-color: rgba(12, 14, 20, 0.98);
 }
 
 .geo-map-card:hover {
-  transform: translateY(-4px) scale(1.01);
-  box-shadow: 0 22px 38px rgba(16, 26, 51, 0.16);
+  transform: none;
+  box-shadow: none;
 }
-
-.geo-side-card {
-  border-radius: var(--surface-radius);
-  border: var(--surface-border);
-  background:
-    linear-gradient(160deg, rgba(255, 255, 255, 0.93) 0%, rgba(248, 250, 255, 0.92) 100%),
-    radial-gradient(circle at 84% 12%, rgba(17, 70, 216, 0.06), rgba(17, 70, 216, 0) 38%);
-  box-shadow: var(--surface-shadow);
-  padding: 18px;
-  will-change: transform;
-  transition: transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.32s ease;
-}
-
-.geo-side-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 22px 38px rgba(16, 26, 51, 0.16);
-}
-
-.geo-side-title {
-  margin: 0;
-  font-family: 'Dela Gothic One', sans-serif;
-  font-weight: 400;
-  font-size: 1.04rem;
-  color: #15244a;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.geo-city-list {
-  list-style: none;
-  margin: 14px 0 0;
-  padding: 0;
-  display: grid;
-  gap: 8px;
-}
-
-.geo-city-item {
-  width: 100%;
-  min-height: 44px;
-  text-align: left;
-  position: relative;
-  padding: 10px 26px 10px 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(16, 26, 51, 0.14);
-  background: rgba(255, 255, 255, 0.82);
-  display: grid;
-  gap: 3px;
-  cursor: pointer;
-  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
-}
-
-.geo-city-item::after {
-  content: '→';
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%) translateX(-2px);
-  opacity: 0;
-  color: rgba(17, 70, 216, 0.74);
-  font-weight: 700;
-  transition: transform 0.2s ease, opacity 0.2s ease;
-}
-
-.geo-city-item:hover {
-  transform: translateY(-1px);
-  border-color: rgba(17, 70, 216, 0.4);
-  background: rgba(255, 255, 255, 0.95);
-}
-
-.geo-city-item:hover::after,
-.geo-city-item.is-active::after {
-  opacity: 1;
-  transform: translateY(-50%) translateX(0);
-}
-
-.geo-city-item:focus-visible {
-  outline: 2px solid rgba(17, 70, 216, 0.72);
-  outline-offset: 2px;
-  border-color: rgba(17, 70, 216, 0.58);
-  background: rgba(255, 255, 255, 0.96);
-}
-
-.geo-city-item.is-active {
-  border-color: rgba(17, 70, 216, 0.56);
-  background: rgba(17, 70, 216, 0.08);
-}
-
-.geo-city-name {
-  font-weight: 700;
-  font-size: 0.98rem;
-  line-height: 1.3;
-  color: #122349;
-}
-
-.geo-city-region {
-  font-size: 0.82rem;
-  line-height: 1.35;
-  color: #5a6782;
-}
-
-.geo-current {
-  margin-top: 14px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  background: rgba(17, 70, 216, 0.08);
-  border: 1px solid rgba(17, 70, 216, 0.2);
-}
-
-.geo-current-label {
-  margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: 0.68rem;
-  color: #5b6885;
-}
-
-.geo-current-name {
-  margin: 4px 0 0;
-  color: #112248;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.geo-current-name::before {
-  content: '';
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: #bfd35a;
-  box-shadow: 0 0 0 0 rgba(191, 211, 90, 0.45);
-  animation: geo-pulse 1.8s ease-out infinite;
-}
-
-.geo-cta {
-  margin-top: 14px;
-  width: 100%;
-}
-
-.geo-cta:focus-visible {
-  outline: 2px solid rgba(17, 70, 216, 0.72);
-  outline-offset: 3px;
-}
-
-.geo-map-card,
-.geo-side-card,
-.geo-fact {
+.geo-map-card {
   opacity: 0;
   transform: translateY(16px);
 }
 
-.geo.is-live .geo-map-card,
-.geo.is-live .geo-side-card,
-.geo.is-live .geo-fact {
+.geo.is-live .geo-map-card {
   opacity: 1;
   transform: translateY(0);
   transition:
     opacity 0.48s ease,
     transform 0.58s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-.geo.is-live .geo-side-card {
-  transition-delay: 0.08s;
-}
-
-.geo.is-live .geo-fact:nth-child(1) {
-  transition-delay: 0.04s;
-}
-
-.geo.is-live .geo-fact:nth-child(2) {
-  transition-delay: 0.1s;
-}
-
-.geo.is-live .geo-fact:nth-child(3) {
-  transition-delay: 0.16s;
 }
 
 @media (max-width: 980px) {
@@ -535,57 +322,20 @@ onBeforeUnmount(() => {
   .geo::after {
     left: -24%;
   }
-
-  .geo-facts {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .geo-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .geo-side-card {
-    max-width: 620px;
-  }
-}
-
-@media (max-width: 640px) {
-  .geo-facts {
-    grid-template-columns: 1fr;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .geo-map-card,
-  .geo-side-card,
-  .geo-fact,
-  .geo-city-item {
+  .geo-map-card {
     transition: none;
   }
 
-  .geo-city-item:hover,
-  .geo-map-card:hover,
-  .geo-side-card:hover {
+  .geo-map-card:hover {
     transform: none;
   }
 
-  .geo-current-name::before {
-    animation: none;
-    box-shadow: none;
-  }
-}
-
-@keyframes geo-pulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(191, 211, 90, 0.45);
+  .geo-city-backdrop-image {
+    transform: none;
   }
 
-  70% {
-    box-shadow: 0 0 0 8px rgba(191, 211, 90, 0);
-  }
-
-  100% {
-    box-shadow: 0 0 0 0 rgba(191, 211, 90, 0);
-  }
 }
 </style>

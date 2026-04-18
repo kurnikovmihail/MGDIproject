@@ -304,6 +304,8 @@ watch(
   inline-size: 100%;
   max-inline-size: 1100px;
   margin-inline: auto;
+  clip-path: var(--map-clip-path, none);
+  overflow: hidden;
 }
 
 .map-root :deep(svg) {
@@ -314,7 +316,7 @@ watch(
 
 .map-root :deep(.map-base-region) {
   fill: #cbd5e1;
-  stroke: #ffffff;
+  stroke: rgba(150, 161, 182, 0.72);
   stroke-width: 1;
   transition: fill 0.2s ease, opacity 0.2s ease;
   cursor: default;
