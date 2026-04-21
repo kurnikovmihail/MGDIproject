@@ -1,7 +1,7 @@
 ﻿<script setup>
-import { onBeforeUnmount, onMounted, ref } from 'vue'
-import teamPhoto from '../../assets/hero-cover.jpg'
-import davidPhoto from '../../assets/давид.jpg'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import teamPhoto from '../../assets/section-02/01-team-photo.jpg'
+import davidPhoto from '../../assets/section-02/02-founder-david.jpg'
 
 const aboutParagraphs = [
   'Привет. Я Давид, и МГДИ появился из простой идеи: дать ребятам пространство, где они могут полностью посвятить себя и свое время для духовной роста и практики.',
@@ -13,6 +13,61 @@ const aboutParagraphs = [
 const aboutRef = ref(null)
 const isRevealed = ref(false)
 let observer = null
+
+const teamFlowModules = import.meta.glob('../../assets/section-02/team-flows/*.{jpg,jpeg,png,webp,JPG,JPEG,PNG,WEBP}', {
+  eager: true,
+  import: 'default'
+})
+
+const teamFlowPhotos = Object.entries(teamFlowModules)
+  .map(([path, src]) => {
+    const fileName = decodeURIComponent(path.split('/').pop() ?? '')
+    const flowMatch = fileName.match(/team-flow-(\d+)/i)
+    const flowNumber = flowMatch ? Number(flowMatch[1]) : null
+    const label = flowNumber ? `Команда МГДИ ${flowNumber}` : 'Команда МГДИ'
+    return {
+      src,
+      flowNumber: flowNumber ?? Number.MAX_SAFE_INTEGER,
+      fileName,
+      label
+    }
+  })
+  .sort((a, b) => {
+    if (a.flowNumber !== b.flowNumber) {
+      return a.flowNumber - b.flowNumber
+    }
+    return a.fileName.localeCompare(b.fileName, 'ru', { numeric: true, sensitivity: 'base' })
+  })
+
+const teamPhotos =
+  teamFlowPhotos.length > 0
+    ? teamFlowPhotos
+    : [
+        {
+          src: teamPhoto,
+          flowNumber: 9,
+          fileName: 'fallback',
+          label: 'Команда МГДИ 9'
+        }
+      ]
+
+const activeTeamPhotoIndex = ref(0)
+const activeTeamPhoto = computed(() => teamPhotos[activeTeamPhotoIndex.value] ?? teamPhotos[0])
+const hasTeamPhotoNav = computed(() => teamPhotos.length > 1)
+
+function showPrevTeamPhoto() {
+  if (!hasTeamPhotoNav.value) {
+    return
+  }
+  activeTeamPhotoIndex.value = (activeTeamPhotoIndex.value - 1 + teamPhotos.length) % teamPhotos.length
+}
+
+function showNextTeamPhoto() {
+  if (!hasTeamPhotoNav.value) {
+    return
+  }
+  activeTeamPhotoIndex.value = (activeTeamPhotoIndex.value + 1) % teamPhotos.length
+}
 
 onMounted(() => {
   if (!('IntersectionObserver' in window)) {
@@ -77,10 +132,31 @@ onBeforeUnmount(() => {
         <div class="about-media-stack">
           <figure class="about-media about-david">
             <img class="about-media-image" :src="davidPhoto" alt="Давид, основатель проекта МГДИ" loading="lazy" />
+            <figcaption>Давид, основатель</figcaption>
           </figure>
 
           <figure class="about-media about-team">
-            <img class="about-media-image" :src="teamPhoto" alt="Команда проекта МГДИ" loading="lazy" />
+            <img class="about-media-image" :src="activeTeamPhoto.src" :alt="activeTeamPhoto.label" loading="lazy" />
+            <figcaption>{{ activeTeamPhoto.label }}</figcaption>
+            <button
+              v-if="hasTeamPhotoNav"
+              type="button"
+              class="about-team-nav about-team-nav-prev"
+              aria-label="Предыдущее фото команды"
+              @click="showPrevTeamPhoto"
+            >
+              ‹
+            </button>
+            <button
+              v-if="hasTeamPhotoNav"
+              type="button"
+              class="about-team-nav about-team-nav-next"
+              aria-label="Следующее фото команды"
+              @click="showNextTeamPhoto"
+            >
+              ›
+            </button>
+            <p v-if="hasTeamPhotoNav" class="about-team-counter">{{ activeTeamPhotoIndex + 1 }} / {{ teamPhotos.length }}</p>
           </figure>
         </div>
       </div>
@@ -279,6 +355,22 @@ onBeforeUnmount(() => {
   object-fit: cover;
 }
 
+.about-media figcaption {
+  position: absolute;
+  left: 14px;
+  bottom: 12px;
+  z-index: 3;
+  margin: 0;
+  padding: 7px 11px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.96);
+  background: rgba(6, 11, 24, 0.66);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+}
+
 .about-david {
   min-height: clamp(340px, 35vw, 480px);
   transition-delay: 0.08s;
@@ -287,6 +379,57 @@ onBeforeUnmount(() => {
 .about-team {
   min-height: clamp(220px, 24vw, 320px);
   transition-delay: 0.42s;
+}
+
+.about-team-nav {
+  position: absolute;
+  top: 50%;
+  z-index: 4;
+  transform: translateY(-50%);
+  border: 0;
+  padding: 0 8px;
+  background: transparent;
+  color: rgba(250, 253, 255, 0.98);
+  font-size: clamp(2rem, 2.6vw, 2.7rem);
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  text-shadow:
+    0 2px 8px rgba(5, 10, 24, 0.86),
+    0 0 16px rgba(5, 10, 24, 0.42);
+  transition: transform 0.24s ease, color 0.24s ease, opacity 0.24s ease;
+}
+
+.about-team-nav-prev {
+  left: 10px;
+}
+
+.about-team-nav-next {
+  right: 10px;
+}
+
+.about-team-nav:hover {
+  color: #ffffff;
+  transform: translateY(-50%) scale(1.08);
+}
+
+.about-team-nav:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.9);
+  outline-offset: 2px;
+  border-radius: 10px;
+}
+
+.about-team-counter {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  z-index: 3;
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(245, 248, 255, 0.86);
+  text-shadow: 0 1px 6px rgba(5, 10, 24, 0.75);
 }
 
 .about-media:hover {

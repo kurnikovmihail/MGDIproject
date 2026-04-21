@@ -26,43 +26,14 @@ const props = defineProps({
   }
 })
 
-const imageModules = import.meta.glob('../../assets/moments/*.{jpg,jpeg,png,webp,JPG,JPEG,PNG,WEBP}', {
+const imageModules = import.meta.glob('../../assets/section-05/*.{jpg,jpeg,png,webp,JPG,JPEG,PNG,WEBP}', {
   eager: true,
   import: 'default'
 })
 
-const assetImages = Object.entries(imageModules)
-  .sort(([a], [b]) =>
-    a.localeCompare(b, undefined, {
-      numeric: true,
-      sensitivity: 'base'
-    })
-  )
-  .map(([, src]) => src)
+const layoutPattern = Object.freeze(['hero', 'wide', 'tall', 'mid-a', 'mid-b', 'small-a', 'small-b', 'support'])
 
-const propCardImages = computed(() => (props.cards ?? []).filter((card) => Boolean(card?.image)).map((card) => card.image))
-
-const sourceImages = computed(() => {
-  if (props.imageSource === 'props') {
-    return propCardImages.value
-  }
-
-  if (props.imageSource === 'auto') {
-    return propCardImages.value.length > 0 ? propCardImages.value : assetImages
-  }
-
-  if (assetImages.length > 0) {
-    return assetImages
-  }
-
-  if (propCardImages.value.length > 0) {
-    return propCardImages.value
-  }
-
-  return []
-})
-
-const storyMeta = Object.freeze([
+const fallbackMeta = Object.freeze([
   {
     title: 'Молитва перед выездом',
     location: 'Пермь - вечернее служение',
@@ -121,28 +92,273 @@ const storyMeta = Object.freeze([
   }
 ])
 
-const layoutPattern = Object.freeze(['hero', 'wide', 'tall', 'mid-a', 'mid-b', 'small-a', 'small-b', 'support'])
+const assetMomentConfigs = Object.freeze([
+  {
+    key: 'prayer',
+    layout: 'hero',
+    title: 'Молитва перед выездом',
+    location: 'Перед стартом поездки',
+    tag: 'единство',
+    description: 'Команда молится перед дорогой и настраивается на служение.',
+    date: 'Весна 2026',
+    previewHints: ['молитва перед выездом 1']
+  },
+  {
+    key: 'trip',
+    layout: 'wide',
+    title: 'Фото перед поездкой',
+    location: 'Стартовый момент',
+    tag: 'путь',
+    description: 'Последние минуты перед выездом, когда все уже готовы двигаться.',
+    date: 'Весна 2026',
+    previewHints: ['фото перед поездкой']
+  },
+  {
+    key: 'learning',
+    layout: 'tall',
+    title: 'Обучение',
+    location: 'Учебный блок',
+    tag: 'рост',
+    description: 'Живое обучение, где знания сразу переходят в практику.',
+    date: 'Весна 2026',
+    previewHints: ['обучение']
+  },
+  {
+    key: 'practice',
+    layout: 'mid-a',
+    title: 'Практика',
+    location: 'Командная практика',
+    tag: 'действие',
+    description: 'Практические задания, совместная работа и закрепление навыков.',
+    date: 'Весна 2026',
+    previewHints: ['практика 2', 'практика']
+  },
+  {
+    key: 'worship',
+    layout: 'mid-b',
+    title: 'Поклонение',
+    location: 'Командное поклонение',
+    tag: 'поклонение',
+    description: 'Время единого поклонения, музыки и молитвенной глубины.',
+    date: 'Весна 2026',
+    previewHints: ['поклонение 1']
+  },
+  {
+    key: 'easter',
+    layout: 'small-a',
+    title: 'Пасхальные моменты',
+    location: 'Пасховая встреча',
+    tag: 'праздник',
+    description: 'Светлые кадры пасхальных дней и особой атмосферы праздника.',
+    date: 'Весна 2026',
+    previewHints: ['пасха 2']
+  },
+  {
+    key: 'comfort',
+    layout: 'small-b',
+    title: 'Уют команды',
+    location: 'Дом и команда',
+    tag: 'атмосфера',
+    description: 'Простые тёплые моменты, где команда становится настоящей семьёй.',
+    date: 'Весна 2026',
+    previewHints: ['уют в команде', 'уют дома'],
+    previewObjectPosition: '50% 22%'
+  },
+  {
+    key: 'together',
+    layout: 'support',
+    title: 'Время вместе',
+    location: 'Начало проекта',
+    tag: 'общение',
+    description: 'Кадры совместного времени, с которого начинается общая история.',
+    date: 'Весна 2026',
+    previewHints: ['в начале проекта', 'время вместе']
+  }
+])
 
-const moments = computed(() =>
-  sourceImages.value.slice(0, layoutPattern.length).map((image, index) => {
-    const meta = storyMeta[index % storyMeta.length]
+function normalizeAssetName(name) {
+  return name
+    .toLowerCase()
+    .replace(/\.[^.]+$/u, '')
+    .replace(/^\d+\s*[-_]\s*/u, '')
+    .replace(/\s+/gu, ' ')
+    .trim()
+}
+
+function detectCategoryKey(normalizedName) {
+  if (normalizedName.includes('молитва перед выездом')) {
+    return 'prayer'
+  }
+
+  if (normalizedName.includes('фото перед поездкой')) {
+    return 'trip'
+  }
+
+  if (normalizedName.includes('обучение')) {
+    return 'learning'
+  }
+
+  if (normalizedName.includes('практика')) {
+    return 'practice'
+  }
+
+  if (normalizedName.includes('поклонение')) {
+    return 'worship'
+  }
+
+  if (normalizedName.includes('пасха')) {
+    return 'easter'
+  }
+
+  if (normalizedName.includes('уют')) {
+    return 'comfort'
+  }
+
+  if (normalizedName.includes('время вместе')) {
+    return 'together'
+  }
+
+  return 'other'
+}
+
+function choosePreview(entries, hints) {
+  for (const hint of hints) {
+    const normalizedHint = hint.toLowerCase()
+    const matched = entries.find((entry) => entry.normalizedName.includes(normalizedHint))
+    if (matched) {
+      return matched
+    }
+  }
+
+  const withoutNumericTail = entries.find((entry) => !/\s[2-9]\b/u.test(entry.normalizedName))
+  return withoutNumericTail ?? entries[0]
+}
+
+const assetImageEntries = Object.entries(imageModules)
+  .map(([path, src]) => {
+    const fileName = decodeURIComponent(path.split('/').pop() ?? '')
+    const title = fileName.replace(/\.[^.]+$/u, '').replace(/^\d+\s*[-_]\s*/u, '').trim()
+    const orderMatch = fileName.match(/^(\d+)/u)
+
+    return {
+      src,
+      fileName,
+      title,
+      normalizedName: normalizeAssetName(fileName),
+      order: orderMatch ? Number(orderMatch[1]) : Number.MAX_SAFE_INTEGER
+    }
+  })
+  .sort((a, b) => {
+    if (a.order !== b.order) {
+      return a.order - b.order
+    }
+
+    return a.fileName.localeCompare(b.fileName, 'ru', { numeric: true, sensitivity: 'base' })
+  })
+
+const groupedAssetImages = computed(() => {
+  const grouped = new Map()
+
+  for (const entry of assetImageEntries) {
+    const categoryKey = detectCategoryKey(entry.normalizedName)
+    if (!grouped.has(categoryKey)) {
+      grouped.set(categoryKey, [])
+    }
+
+    grouped.get(categoryKey).push(entry)
+  }
+
+  return grouped
+})
+
+const categorizedAssetMoments = computed(() =>
+  assetMomentConfigs
+    .map((config, index) => {
+      const entries = groupedAssetImages.value.get(config.key) ?? []
+      if (!entries.length) {
+        return null
+      }
+
+      const preview = choosePreview(entries, config.previewHints ?? [])
+      const galleryEntries = [preview, ...entries.filter((entry) => entry !== preview)]
+      const gallery = galleryEntries.map((entry, photoIndex) => ({
+        id: `moment-${index + 1}-photo-${photoIndex + 1}`,
+        src: entry.src,
+        alt: `${config.title}: ${entry.title}`,
+        title: entry.title
+      }))
+
+      return {
+        id: `moment-${index + 1}`,
+        image: preview.src,
+        layout: config.layout,
+        previewObjectPosition: config.previewObjectPosition ?? '',
+        gallery,
+        photoCount: gallery.length,
+        title: config.title,
+        location: config.location,
+        tag: config.tag,
+        description: config.description,
+        date: config.date
+      }
+    })
+    .filter(Boolean)
+)
+
+const propCardImages = computed(() => (props.cards ?? []).filter((card) => Boolean(card?.image)).map((card) => card.image))
+
+const fallbackMoments = computed(() =>
+  propCardImages.value.slice(0, layoutPattern.length).map((image, index) => {
+    const meta = fallbackMeta[index % fallbackMeta.length]
+
     return {
       id: `moment-${index + 1}`,
       image,
       layout: layoutPattern[index],
+      previewObjectPosition: '',
+      gallery: [
+        {
+          id: `moment-${index + 1}-photo-1`,
+          src: image,
+          alt: meta.title,
+          title: meta.title
+        }
+      ],
+      photoCount: 1,
       ...meta
     }
   })
 )
 
+const moments = computed(() => {
+  if (props.imageSource === 'props') {
+    return fallbackMoments.value
+  }
+
+  if (categorizedAssetMoments.value.length > 0) {
+    return categorizedAssetMoments.value
+  }
+
+  if (props.imageSource === 'auto' && fallbackMoments.value.length > 0) {
+    return fallbackMoments.value
+  }
+
+  return []
+})
+
 const isViewerOpen = ref(false)
-const activeIndex = ref(0)
+const activeMomentIndex = ref(0)
+const activePhotoIndex = ref(0)
 const viewerRef = ref(null)
 const closeButtonRef = ref(null)
 const appRootRef = ref(null)
 const lastFocusedElement = ref(null)
 
-const activeMoment = computed(() => moments.value[activeIndex.value] ?? null)
+const activeMoment = computed(() => moments.value[activeMomentIndex.value] ?? null)
+const activeGallery = computed(() => activeMoment.value?.gallery ?? [])
+const activePhoto = computed(() => activeGallery.value[activePhotoIndex.value] ?? activeGallery.value[0] ?? null)
+const hasMultipleActivePhotos = computed(() => activeGallery.value.length > 1)
+const hasMultipleMoments = computed(() => moments.value.length > 1)
 
 const focusableSelector =
   'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
@@ -157,7 +373,8 @@ function openViewer(index) {
   }
 
   rememberCurrentFocus()
-  activeIndex.value = index
+  activeMomentIndex.value = index
+  activePhotoIndex.value = 0
   isViewerOpen.value = true
 }
 
@@ -165,20 +382,28 @@ function closeViewer() {
   isViewerOpen.value = false
 }
 
-function showNext() {
+function showNextMoment() {
   if (!moments.value.length) {
     return
   }
 
-  activeIndex.value = (activeIndex.value + 1) % moments.value.length
+  activeMomentIndex.value = (activeMomentIndex.value + 1) % moments.value.length
 }
 
-function showPrev() {
+function showPrevMoment() {
   if (!moments.value.length) {
     return
   }
 
-  activeIndex.value = (activeIndex.value - 1 + moments.value.length) % moments.value.length
+  activeMomentIndex.value = (activeMomentIndex.value - 1 + moments.value.length) % moments.value.length
+}
+
+function setActivePhoto(index) {
+  if (index < 0 || index >= activeGallery.value.length) {
+    return
+  }
+
+  activePhotoIndex.value = index
 }
 
 function trapFocus(event) {
@@ -223,13 +448,13 @@ function handleKeydown(event) {
 
   if (event.key === 'ArrowLeft') {
     event.preventDefault()
-    showPrev()
+    showPrevMoment()
     return
   }
 
   if (event.key === 'ArrowRight') {
     event.preventDefault()
-    showNext()
+    showNextMoment()
   }
 }
 
@@ -260,6 +485,24 @@ watch(isViewerOpen, async (isOpen) => {
   if (lastFocusedElement.value && document.contains(lastFocusedElement.value)) {
     lastFocusedElement.value.focus()
   }
+})
+
+watch(activeMomentIndex, () => {
+  activePhotoIndex.value = 0
+})
+
+watch(moments, (nextMoments) => {
+  if (!nextMoments.length) {
+    activeMomentIndex.value = 0
+    activePhotoIndex.value = 0
+    return
+  }
+
+  if (activeMomentIndex.value > nextMoments.length - 1) {
+    activeMomentIndex.value = 0
+  }
+
+  activePhotoIndex.value = 0
 })
 
 onBeforeUnmount(() => {
@@ -293,14 +536,20 @@ onBeforeUnmount(() => {
           :class="`layout-${moment.layout}`"
           @click="openViewer(index)"
         >
-          <img class="moment-image" :src="moment.image" :alt="moment.title" loading="lazy" decoding="async" />
+          <img
+            class="moment-image"
+            :src="moment.image"
+            :alt="moment.title"
+            :style="moment.previewObjectPosition ? { objectPosition: moment.previewObjectPosition } : undefined"
+            loading="lazy"
+            decoding="async"
+          />
           <span class="moment-overlay" aria-hidden="true"></span>
           <span class="moment-noise" aria-hidden="true"></span>
 
           <span class="moment-caption">
             <span class="moment-caption-location">{{ moment.location }}</span>
             <span class="moment-caption-title">{{ moment.title }}</span>
-            <span class="moment-caption-description">{{ moment.description }}</span>
             <span class="moment-caption-tag">{{ moment.tag }}</span>
           </span>
         </button>
@@ -310,7 +559,7 @@ onBeforeUnmount(() => {
     <Teleport to="body">
       <transition name="viewer-fade">
         <div
-          v-if="isViewerOpen && activeMoment"
+          v-if="isViewerOpen && activeMoment && activePhoto"
           ref="viewerRef"
           class="moment-viewer"
           tabindex="-1"
@@ -328,24 +577,50 @@ onBeforeUnmount(() => {
             &times;
           </button>
 
-          <button type="button" class="viewer-nav viewer-prev" aria-label="Предыдущее фото" @click="showPrev">
+          <button
+            type="button"
+            class="viewer-nav viewer-prev"
+            :class="{ 'is-disabled': !hasMultipleMoments }"
+            aria-label="Предыдущий блок"
+            :disabled="!hasMultipleMoments"
+            @click="showPrevMoment"
+          >
             &lsaquo;
           </button>
 
           <figure class="viewer-media">
-            <img class="viewer-image" :src="activeMoment.image" :alt="activeMoment.title" decoding="async" />
+            <img class="viewer-image" :src="activePhoto.src" :alt="activePhoto.alt" decoding="async" />
           </figure>
 
           <aside class="viewer-panel">
-            <p class="viewer-date">{{ activeMoment.date }}</p>
+            <p class="viewer-date">#мгди 9</p>
             <h3 class="viewer-title">{{ activeMoment.title }}</h3>
-            <p class="viewer-description">{{ activeMoment.description }}</p>
-            <p class="viewer-location">{{ activeMoment.location }}</p>
             <p class="viewer-tag">#{{ activeMoment.tag }}</p>
-            <p class="viewer-counter">{{ activeIndex + 1 }} / {{ moments.length }}</p>
+
+            <div v-if="activeGallery.length > 1" class="viewer-thumbs">
+              <button
+                v-for="(photo, photoIndex) in activeGallery"
+                :key="photo.id"
+                type="button"
+                class="viewer-thumb"
+                :class="{ 'is-active': photoIndex === activePhotoIndex }"
+                @click="setActivePhoto(photoIndex)"
+              >
+                <img :src="photo.src" :alt="photo.alt" loading="lazy" decoding="async" />
+              </button>
+            </div>
+
+            <p v-if="activeGallery.length > 1" class="viewer-counter">{{ activePhotoIndex + 1 }} / {{ activeGallery.length }}</p>
           </aside>
 
-          <button type="button" class="viewer-nav viewer-next" aria-label="Следующее фото" @click="showNext">
+          <button
+            type="button"
+            class="viewer-nav viewer-next"
+            :class="{ 'is-disabled': !hasMultipleMoments }"
+            aria-label="Следующий блок"
+            :disabled="!hasMultipleMoments"
+            @click="showNextMoment"
+          >
             &rsaquo;
           </button>
         </div>
@@ -548,21 +823,6 @@ onBeforeUnmount(() => {
   overflow-wrap: break-word;
 }
 
-.moment-caption-description {
-  max-height: 0;
-  opacity: 0;
-  overflow: hidden;
-  transform: translateY(8px);
-  transition:
-    max-height 0.35s ease,
-    opacity 0.32s ease,
-    transform 0.35s ease;
-  color: rgba(255, 255, 255, 0.86);
-  font-size: 0.9rem;
-  line-height: 1.5;
-  overflow-wrap: break-word;
-}
-
 .moment-caption-tag {
   width: fit-content;
   margin-top: 2px;
@@ -586,13 +846,6 @@ onBeforeUnmount(() => {
 .moment-card:focus-visible .moment-image {
   transform: scale(1.07);
   filter: saturate(1.05) contrast(1.01);
-}
-
-.moment-card:hover .moment-caption-description,
-.moment-card:focus-visible .moment-caption-description {
-  max-height: 96px;
-  opacity: 1;
-  transform: translateY(0);
 }
 
 .moment-card:focus-visible {
@@ -634,23 +887,39 @@ onBeforeUnmount(() => {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 48px;
-  height: 64px;
+  width: 54px;
+  height: 118px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(8, 16, 38, 0.74);
-  color: rgba(255, 255, 255, 0.94);
-  font-size: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background:
+    linear-gradient(180deg, rgba(17, 35, 79, 0.72), rgba(8, 18, 42, 0.84)),
+    rgba(8, 16, 38, 0.72);
+  color: rgba(222, 231, 255, 0.9);
+  font-size: 2.15rem;
   line-height: 1;
   cursor: pointer;
+  box-shadow: 0 14px 28px rgba(3, 8, 20, 0.42);
+  transition: border-color 0.26s ease, color 0.26s ease, background 0.26s ease, transform 0.26s ease;
 }
 
 .viewer-prev {
-  left: 14px;
+  left: 18px;
 }
 
 .viewer-next {
-  right: 14px;
+  right: 18px;
+}
+
+.viewer-nav:not(:disabled):hover {
+  border-color: rgba(191, 211, 90, 0.52);
+  color: #eaf0ff;
+  transform: translateY(-50%) scale(1.02);
+}
+
+.viewer-nav.is-disabled,
+.viewer-nav:disabled {
+  opacity: 0.42;
+  cursor: default;
 }
 
 .viewer-close:focus-visible,
@@ -705,21 +974,6 @@ onBeforeUnmount(() => {
   color: #f8f9ff;
 }
 
-.viewer-description {
-  margin: 0;
-  max-width: 34ch;
-  font-size: 1rem;
-  line-height: 1.64;
-  color: rgba(255, 255, 255, 0.88);
-}
-
-.viewer-location {
-  margin: 0;
-  font-size: 0.92rem;
-  line-height: 1.45;
-  color: rgba(255, 255, 255, 0.75);
-}
-
 .viewer-tag {
   margin: 2px 0 0;
   width: fit-content;
@@ -730,6 +984,40 @@ onBeforeUnmount(() => {
   font-size: 0.72rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.viewer-thumbs {
+  margin-top: 2px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(62px, 1fr));
+  gap: 8px;
+}
+
+.viewer-thumb {
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  background: rgba(8, 16, 38, 0.58);
+  border-radius: 10px;
+  padding: 0;
+  height: 56px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.24s ease, transform 0.24s ease;
+}
+
+.viewer-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.viewer-thumb.is-active {
+  border-color: rgba(191, 211, 90, 0.92);
+  transform: translateY(-1px);
+}
+
+.viewer-thumb:focus-visible {
+  outline: 2px solid rgba(191, 211, 90, 0.9);
+  outline-offset: 1px;
 }
 
 .viewer-counter {
@@ -773,12 +1061,6 @@ onBeforeUnmount(() => {
       'support support';
   }
 
-  .moment-caption-description {
-    max-height: 92px;
-    opacity: 1;
-    transform: translateY(0);
-  }
-
   .moment-viewer {
     grid-template-columns: 1fr;
     grid-template-rows: auto auto;
@@ -799,8 +1081,9 @@ onBeforeUnmount(() => {
     top: auto;
     bottom: 14px;
     transform: none;
-    width: 44px;
-    height: 44px;
+    width: 46px;
+    height: 46px;
+    font-size: 1.82rem;
   }
 
   .viewer-prev {
@@ -809,6 +1092,10 @@ onBeforeUnmount(() => {
 
   .viewer-next {
     right: 16px;
+  }
+
+  .viewer-nav:not(:disabled):hover {
+    transform: scale(1.02);
   }
 
   .viewer-image {
@@ -840,7 +1127,7 @@ onBeforeUnmount(() => {
   .moment-card,
   .moment-image,
   .moment-overlay,
-  .moment-caption-description,
+  .viewer-thumb,
   .viewer-fade-enter-active,
   .viewer-fade-leave-active {
     transition: none;
@@ -857,4 +1144,5 @@ onBeforeUnmount(() => {
   }
 }
 </style>
+
 

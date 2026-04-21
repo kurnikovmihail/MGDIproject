@@ -7,14 +7,8 @@ const menuLinks = [
 ]
 
 const socialLinks = [
-  { href: '#', label: 'VK' },
-  { href: '#', label: 'Telegram' },
-  { href: '#', label: 'YouTube' }
-]
-
-const contactLinks = [
-  { href: 'mailto:team@mgdi.example', label: 'team@mgdi.example' },
-  { href: 'tel:+79990000000', label: '+7 (999) 000-00-00' }
+  { href: 'https://vk.ru/mgdiperm', label: 'VK' },
+  { href: 'https://t.me/mgdiperm', label: 'Telegram' }
 ]
 </script>
 
@@ -36,14 +30,9 @@ const contactLinks = [
       <div class="footer-col">
         <h4>Соцсети</h4>
         <div class="footer-links">
-          <a v-for="item in socialLinks" :key="item.label" :href="item.href">{{ item.label }}</a>
-        </div>
-      </div>
-
-      <div class="footer-col">
-        <h4>Контакты</h4>
-        <div class="footer-links">
-          <a v-for="item in contactLinks" :key="item.label" :href="item.href">{{ item.label }}</a>
+          <a v-for="item in socialLinks" :key="item.label" :href="item.href" target="_blank" rel="noopener noreferrer">
+            {{ item.label }}
+          </a>
         </div>
       </div>
     </div>
@@ -64,7 +53,7 @@ const contactLinks = [
 
 .footer-grid {
   display: grid;
-  grid-template-columns: 1.2fr repeat(3, minmax(0, 1fr));
+  grid-template-columns: 1.2fr repeat(2, minmax(0, 1fr));
   gap: 24px;
 }
 

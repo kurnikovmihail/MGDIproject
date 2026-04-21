@@ -1,5 +1,5 @@
 ﻿<script setup>
-import mgdiPatternImage from '../../assets/mgdi-pattern-strip.png'
+import mgdiPatternImage from '../../assets/section-06/01-pattern-strip.png'
 
 const rowDurations = [64, 78, 70, 86]
 const patternRows = Array.from({ length: 6 }, (_, index) => ({
@@ -33,13 +33,15 @@ const patternRows = Array.from({ length: 6 }, (_, index) => ({
         <span class="accent-lime">Служим Богу</span>
         вместе.
       </h2>
-      <p class="final-text">
-        Мы открыты для участников, наставников и партнеров. Если хотите запускать идеи,
-        которые несут пользу людям и городу, вы в правильном месте.
-      </p>
       <div class="final-actions">
-        <a class="btn btn-primary final-btn" href="#3davvideo">Подать заявку</a>
-        <a class="btn btn-secondary final-btn" href="#moments">Стать партнером</a>
+        <a
+          class="btn btn-primary final-btn"
+          href="https://forms.yandex.ru/u/67a0d2d6d04688eb48b52c96/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Подать заявку
+        </a>
       </div>
     </div>
   </section>
@@ -156,17 +158,8 @@ const patternRows = Array.from({ length: 6 }, (_, index) => ({
   text-wrap: balance;
 }
 
-.final-text {
-  margin: 18px 0 30px;
-  max-width: 62ch;
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 1.03rem;
-  line-height: 1.68;
-  text-shadow: 0 2px 10px rgba(4, 8, 20, 0.32);
-  text-wrap: pretty;
-}
-
 .final-actions {
+  margin-top: 26px;
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
@@ -219,10 +212,6 @@ const patternRows = Array.from({ length: 6 }, (_, index) => ({
     height: 45px;
   }
 
-  .final-text {
-    margin-bottom: 24px;
-  }
-
   .final-actions {
     gap: 10px;
   }
@@ -235,11 +224,6 @@ const patternRows = Array.from({ length: 6 }, (_, index) => ({
 @media (max-width: 640px) {
   .final-title {
     line-height: 1;
-  }
-
-  .final-text {
-    font-size: 0.98rem;
-    line-height: 1.58;
   }
 
   .final-actions {

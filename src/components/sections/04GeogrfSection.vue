@@ -1,10 +1,10 @@
 ﻿<script setup>
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import RussiaMap from '../ui/russia-map/RussiaMap.vue'
-import cityBackdropPerm from '../../assets/пермь на фонт.jpg'
-import cityBackdropCherepovets from '../../assets/черепоыец на фон.jpg'
-import cityBackdropOmsk from '../../assets/омск на фон обрез.jpg'
-import cityBackdropKrasnoyarsk from '../../assets/красноярск на фон.jpg'
+import cityBackdropPerm from '../../assets/section-04/02-city-perm.jpg'
+import cityBackdropCherepovets from '../../assets/section-04/03-city-cherepovets.jpg'
+import cityBackdropOmsk from '../../assets/section-04/04-city-omsk.jpg'
+import cityBackdropKrasnoyarsk from '../../assets/section-04/05-city-krasnoyarsk.jpg'
 
 const props = defineProps({
   label: {

@@ -28,7 +28,7 @@
   --shadow-pop: 0 30px 62px rgba(6, 10, 24, 0.24);
   --border-soft: 1px solid rgba(16, 26, 51, 0.12);
 
-  --corner-decor-image: url('../assets/уголок для краев.png');
+  --corner-decor-image: url('../assets/layout/02-corner-decor.png');
   --corner-mask-size-x: 208.5%;
   --corner-mask-size-y: 241.4%;
   --corner-lg-width: 136px;

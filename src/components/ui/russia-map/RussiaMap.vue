@@ -1,6 +1,6 @@
 ﻿<script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import russiaSvgRaw from '../../../assets/maps/russia.svg?raw'
+import russiaSvgRaw from '../../../assets/section-04/01-russia-map.svg?raw'
 import { normalizeRegionCode } from './normalizeRegionCode'
 import RussiaMapSvg from './RussiaMapSvg.vue'
 

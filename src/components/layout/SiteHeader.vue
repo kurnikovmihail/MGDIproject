@@ -1,5 +1,5 @@
 ﻿<script setup>
-import logoHeader from '../../assets/logo-header.png'
+import logoHeader from '../../assets/layout/01-logo-header.png'
 
 defineProps({
   isScrolled: {

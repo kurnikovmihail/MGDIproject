@@ -1,6 +1,6 @@
 ﻿<script setup>
-import heroPoster from '../../assets/hero-cover.jpg'
-import heroVideo from '../../assets/hero_bw_desktop_1920x1080.mp4'
+import heroPoster from '../../assets/section-01/01-hero-cover.jpg'
+import heroVideo from '../../assets/section-01/02-hero-background.mp4'
 </script>
 
 <template>

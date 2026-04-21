@@ -1,10 +1,10 @@
 <script setup>
 import { onBeforeUnmount, onMounted, ref } from 'vue'
-import guitarCard from '../../assets/card-guitar.png'
-import communicationCard from '../../assets/card-communication.png'
-import learningCard from '../../assets/card-learning.png'
-import tripsCard from '../../assets/card-trips.png'
-import mgdiPatternImage from '../../assets/mgdi-pattern-strip.png'
+import guitarCard from '../../assets/section-03/01-card-guitar.png'
+import communicationCard from '../../assets/section-03/02-card-communication.png'
+import learningCard from '../../assets/section-03/03-card-learning.png'
+import tripsCard from '../../assets/section-03/04-card-trips.png'
+import mgdiPatternImage from '../../assets/section-03/05-pattern-strip.png'
 
 const iconSet = [guitarCard, communicationCard, learningCard, tripsCard]
 const rowDurations = [62, 76, 68, 84]
