@@ -341,7 +341,7 @@ onBeforeUnmount(() => {
 
 .about-content > * {
   position: relative;
-  z-index: 1;
+  z-index: 3;
 }
 
 .about-copy {
