@@ -1,12 +1,83 @@
 ﻿<script setup>
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 import heroPoster from '../../assets/section-01/01-hero-cover.jpg'
 import heroVideo from '../../assets/section-01/02-hero-background.mp4'
+
+const heroVideoRef = ref(null)
+let canPlayHandler = null
+let firstInteractionHandler = null
+
+function tryAutoplay() {
+  const videoElement = heroVideoRef.value
+  if (!videoElement) {
+    return
+  }
+
+  videoElement.muted = true
+  videoElement.defaultMuted = true
+  videoElement.playsInline = true
+  videoElement.setAttribute('muted', '')
+  videoElement.setAttribute('playsinline', '')
+  videoElement.setAttribute('webkit-playsinline', '')
+
+  const playResult = videoElement.play()
+  if (playResult && typeof playResult.catch === 'function') {
+    playResult.catch(() => {})
+  }
+}
+
+onMounted(() => {
+  const videoElement = heroVideoRef.value
+  if (!videoElement) {
+    return
+  }
+
+  canPlayHandler = () => {
+    tryAutoplay()
+  }
+
+  firstInteractionHandler = () => {
+    tryAutoplay()
+    if (firstInteractionHandler) {
+      window.removeEventListener('touchstart', firstInteractionHandler)
+      window.removeEventListener('pointerdown', firstInteractionHandler)
+    }
+  }
+
+  tryAutoplay()
+  videoElement.addEventListener('canplay', canPlayHandler, { passive: true })
+  window.addEventListener('touchstart', firstInteractionHandler, { passive: true })
+  window.addEventListener('pointerdown', firstInteractionHandler, { passive: true })
+})
+
+onBeforeUnmount(() => {
+  const videoElement = heroVideoRef.value
+  if (videoElement && canPlayHandler) {
+    videoElement.removeEventListener('canplay', canPlayHandler)
+  }
+
+  if (firstInteractionHandler) {
+    window.removeEventListener('touchstart', firstInteractionHandler)
+    window.removeEventListener('pointerdown', firstInteractionHandler)
+  }
+})
 </script>
 
 <template>
   <section id="priv-video" class="hero" data-block-name="Priv.video">
     <div class="hero-backdrop" :style="{ backgroundImage: `url(${heroPoster})` }" aria-hidden="true"></div>
-    <video class="hero-media" :poster="heroPoster" autoplay muted loop playsinline preload="metadata" aria-hidden="true">
+        <video
+      ref="heroVideoRef"
+      class="hero-media"
+      :poster="heroPoster"
+      autoplay
+      muted
+      loop
+      playsinline
+      webkit-playsinline="true"
+      preload="auto"
+      aria-hidden="true"
+    >
       <source :src="heroVideo" type="video/mp4" />
     </video>
     <div class="hero-overlay" aria-hidden="true"></div>
@@ -164,3 +235,4 @@ import heroVideo from '../../assets/section-01/02-hero-background.mp4'
   }
 }
 </style>
+
