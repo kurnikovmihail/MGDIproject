@@ -341,7 +341,7 @@ onBeforeUnmount(() => {
 
 .about-content > * {
   position: relative;
-  z-index: 3;
+  z-index: 1;
 }
 
 .about-copy {
@@ -612,139 +612,97 @@ onBeforeUnmount(() => {
 
 @media (max-width: 900px) {
   .about-stage {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 14px;
-    margin-top: 2px;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-top: 6px;
+  }
+
+  .about-content,
+  .about-media-stack {
+    max-width: 620px;
   }
 
   .about-content {
-    --about-strip-height: 14px;
+    --about-strip-height: 17px;
     --about-portal-duration: 1.65s;
   }
 
   .about-panel {
-    padding: 16px 14px;
+    padding: 18px 16px;
   }
 
   .about-content::before,
   .about-content::after {
-    width: 76%;
+    width: 80%;
     height: var(--about-strip-height);
   }
 
-  .about-heading {
-    max-width: 12ch;
-    font-size: clamp(1.7rem, 5vw, 3.1rem);
-    line-height: 0.98;
-  }
-
-  .about-text {
-    gap: 10px;
-  }
-
-  .about-text p {
-    font-size: clamp(0.95rem, 0.3vw + 0.86rem, 1.02rem);
-    line-height: 1.52;
-  }
-
-  .about-media-stack {
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-    gap: 10px;
-  }
-
-  .about-media figcaption {
-    left: 10px;
-    bottom: 9px;
-    padding: 5px 10px;
-    font-size: 0.66rem;
-    letter-spacing: 0.07em;
-  }
-
   .about-david {
-    min-height: clamp(210px, 38vw, 292px);
+    min-height: 300px;
   }
 
   .about-team {
-    min-height: clamp(210px, 38vw, 292px);
+    min-height: 236px;
   }
 
   .about-team-nav {
-    width: 33px;
-    height: 33px;
-    font-size: 1.48rem;
+    background: rgba(5, 11, 24, 0.26);
+    backdrop-filter: blur(2px);
+    font-size: 2rem;
   }
 
   .about-team-counter {
-    right: 8px;
-    top: 10px;
-    bottom: auto;
-    padding: 2px 8px;
-    border-radius: 999px;
-    background: rgba(6, 11, 24, 0.45);
-    font-size: 0.64rem;
+    right: 12px;
+    bottom: 12px;
   }
 }
 
 @media (max-width: 640px) {
-  .about-stage {
-    grid-template-columns: minmax(0, 1fr);
+  .about-text {
     gap: 10px;
   }
 
-  .about-panel {
-    padding: 14px 12px;
-  }
-
-  .about-text {
-    gap: 9px;
-  }
-
   .about-text p {
-    font-size: 0.93rem;
-    line-height: 1.5;
+    font-size: 0.92rem;
+    line-height: 1.56;
   }
 
   .about-media-stack {
-    grid-template-columns: minmax(0, 1fr);
     gap: 10px;
   }
 
   .about-media figcaption {
     left: 10px;
     bottom: 10px;
-    padding: 5px 10px;
-    font-size: 0.66rem;
-    letter-spacing: 0.06em;
+    padding: 6px 10px;
+    font-size: 0.68rem;
   }
 
   .about-heading {
-    max-width: 11ch;
-    font-size: clamp(1.6rem, 7.2vw, 2.5rem);
-    line-height: 0.98;
+    max-width: 12ch;
   }
 
   .about-david {
-    min-height: clamp(240px, 72vw, 370px);
+    min-height: 248px;
   }
 
   .about-team {
-    min-height: clamp(222px, 62vw, 330px);
+    min-height: 210px;
   }
 
   .about-team-nav {
-    width: 28px;
-    height: 28px;
-    font-size: 1.28rem;
+    width: 40px;
+    height: 40px;
   }
 
   .about-team-counter {
     right: 10px;
     top: 10px;
     bottom: auto;
-    padding: 2px 7px;
+    padding: 3px 8px;
     border-radius: 999px;
     background: rgba(6, 11, 24, 0.45);
-    font-size: 0.62rem;
+    font-size: 0.66rem;
   }
 
   .about-team-dots {
@@ -755,41 +713,6 @@ onBeforeUnmount(() => {
   .about-team-dot {
     width: 6px;
     height: 6px;
-  }
-}
-
-@media (max-width: 420px) {
-  .about-stage {
-    gap: 9px;
-  }
-
-  .about-content {
-    --about-strip-height: 11px;
-  }
-
-  .about-panel {
-    padding: 12px 10px;
-  }
-
-  .about-text p {
-    font-size: 0.88rem;
-    line-height: 1.44;
-  }
-
-  .about-david {
-    min-height: clamp(220px, 74vw, 340px);
-  }
-
-  .about-team {
-    min-height: clamp(212px, 60vw, 300px);
-  }
-
-  .about-team-counter {
-    font-size: 0.58rem;
-  }
-
-  .about-team-dots {
-    top: 9px;
   }
 }
 

@@ -44,6 +44,10 @@ const CONTACT_LABELS = Object.freeze({
 const BUBBLE_Y_OFFSET_BY_REGION = Object.freeze({
   KYA: 150
 })
+const REGION_CLICK_SLOP = Object.freeze({
+  desktop: 24,
+  touch: 40
+})
 
 const hostRef = ref(null)
 const hoveredRegionCode = ref(null)
@@ -143,6 +147,64 @@ function getRegionElementFromTarget(target) {
   return target?.closest?.('[data-region-code]') ?? null
 }
 
+function getClosestInteractiveRegionFromPoint(clientX, clientY, options = {}) {
+  if (typeof clientX !== 'number' || typeof clientY !== 'number') {
+    return null
+  }
+
+  const svgElement = getSvgElement()
+  if (!svgElement) {
+    return null
+  }
+
+  const maxDistance = options.maxDistance ?? REGION_CLICK_SLOP.desktop
+  const interactiveRegions = svgElement.querySelectorAll('[data-region-code]')
+
+  let bestRegionElement = null
+  let bestDistance = Number.POSITIVE_INFINITY
+
+  interactiveRegions.forEach((element) => {
+    const code = element.dataset.regionCode
+    if (!isInteractiveRegion(code)) {
+      return
+    }
+
+    const rect = element.getBoundingClientRect()
+    if (rect.width <= 0 || rect.height <= 0) {
+      return
+    }
+
+    const dx = Math.max(rect.left - clientX, 0, clientX - rect.right)
+    const dy = Math.max(rect.top - clientY, 0, clientY - rect.bottom)
+    const distance = Math.hypot(dx, dy)
+
+    if (distance < bestDistance) {
+      bestDistance = distance
+      bestRegionElement = element
+    }
+  })
+
+  if (bestDistance > maxDistance) {
+    return null
+  }
+
+  return bestRegionElement
+}
+
+function resolveInteractiveRegionFromEvent(event) {
+  const directRegionElement = getRegionElementFromTarget(event.target)
+  if (directRegionElement && isInteractiveRegion(directRegionElement.dataset.regionCode)) {
+    return directRegionElement
+  }
+
+  const isTouchLike =
+    event.pointerType === 'touch' ||
+    event.type.startsWith('touch') ||
+    window.matchMedia('(max-width: 900px)').matches
+  const maxDistance = isTouchLike ? REGION_CLICK_SLOP.touch : REGION_CLICK_SLOP.desktop
+  return getClosestInteractiveRegionFromPoint(event.clientX, event.clientY, { maxDistance })
+}
+
 function toRegionPayload(code, fallbackName = null) {
   if (!code) {
     return null
@@ -177,9 +239,9 @@ function updateContactBubblePosition() {
     return
   }
 
-  const sidePadding = 14
-  const availableWidth = Math.max(140, hostRect.width - sidePadding * 2)
-  const bubbleMaxWidth = Math.min(hostRect.width < 760 ? 320 : 340, availableWidth)
+  const sidePadding = 8
+  const availableWidth = Math.max(110, hostRect.width - sidePadding * 2)
+  const bubbleMaxWidth = Math.min(hostRect.width < 760 ? 168 : 188, availableWidth)
   const bubbleHalfWidth = bubbleMaxWidth / 2
 
   const anchorX = regionRect.left - hostRect.left + regionRect.width / 2
@@ -190,7 +252,7 @@ function updateContactBubblePosition() {
     Math.max(sidePadding + bubbleHalfWidth, anchorX)
   )
   const perRegionYOffset = BUBBLE_Y_OFFSET_BY_REGION[selectedCode] ?? 0
-  const estimatedBubbleHeight = hostRect.width < 760 ? 156 : 138
+  const estimatedBubbleHeight = hostRect.width < 760 ? 82 : 72
   const minAnchorY = estimatedBubbleHeight + 10
   const maxAnchorY = Math.max(minAnchorY, hostRect.height - 12)
   const y = Math.min(maxAnchorY, Math.max(minAnchorY, anchorY + perRegionYOffset))
@@ -324,7 +386,7 @@ function handlePointerOut(event) {
 }
 
 function handleClick(event) {
-  const regionElement = getRegionElementFromTarget(event.target)
+  const regionElement = resolveInteractiveRegionFromEvent(event)
   if (!regionElement) {
     return
   }
@@ -522,9 +584,9 @@ watch(
   position: absolute;
   z-index: 8;
   transform: translate(-50%, -100%);
-  inline-size: min(var(--contact-max-width, 340px), calc(100% - 20px));
-  padding: 14px 16px;
-  border-radius: 18px;
+  inline-size: min(var(--contact-max-width, 188px), calc(100% - 12px));
+  padding: 8px 10px;
+  border-radius: 10px;
   border: 1px solid rgba(16, 26, 51, 0.2);
   background:
     linear-gradient(155deg, rgba(255, 255, 255, 0.94), rgba(246, 249, 255, 0.9)),
@@ -540,9 +602,9 @@ watch(
   content: '';
   position: absolute;
   left: calc(50% + var(--contact-pointer-shift, 0px));
-  bottom: -9px;
-  inline-size: 17px;
-  block-size: 17px;
+  bottom: -6px;
+  inline-size: 11px;
+  block-size: 11px;
   transform: translateX(-50%) rotate(45deg);
   border-right: 1px solid rgba(16, 26, 51, 0.2);
   border-bottom: 1px solid rgba(16, 26, 51, 0.2);
@@ -550,10 +612,10 @@ watch(
 }
 
 .map-contact-region {
-  margin: 0 0 7px;
+  margin: 0 0 4px;
   color: rgba(16, 26, 51, 0.74);
-  font-size: 0.76rem;
-  line-height: 1.2;
+  font-size: 0.56rem;
+  line-height: 1.12;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-weight: 700;
@@ -562,12 +624,12 @@ watch(
 .map-contact-row {
   margin: 0;
   color: var(--text-main);
-  font-size: 0.94rem;
-  line-height: 1.42;
+  font-size: 0.62rem;
+  line-height: 1.24;
 }
 
 .map-contact-row + .map-contact-row {
-  margin-top: 3px;
+  margin-top: 2px;
 }
 
 .map-contact-row span {
@@ -605,14 +667,14 @@ watch(
 
 @media (max-width: 840px) {
   .map-contact-bubble {
-    padding: 12px 13px;
-    border-radius: 15px;
-    inline-size: min(var(--contact-max-width, 320px), calc(100% - 14px));
+    padding: 7px 8px;
+    border-radius: 9px;
+    inline-size: min(var(--contact-max-width, 166px), calc(100% - 10px));
   }
 
   .map-contact-row {
-    font-size: 0.86rem;
-    line-height: 1.38;
+    font-size: 0.58rem;
+    line-height: 1.2;
   }
 }
 
@@ -622,19 +684,19 @@ watch(
   }
 
   .map-contact-bubble {
-    inline-size: min(var(--contact-max-width, 300px), calc(100% - 10px));
-    padding: 10px 11px;
-    border-radius: 13px;
+    inline-size: min(var(--contact-max-width, 154px), calc(100% - 8px));
+    padding: 6px 7px;
+    border-radius: 8px;
   }
 
   .map-contact-region {
-    margin-bottom: 6px;
-    font-size: 0.7rem;
+    margin-bottom: 3px;
+    font-size: 0.52rem;
   }
 
   .map-contact-row {
-    font-size: 0.8rem;
-    line-height: 1.34;
+    font-size: 0.54rem;
+    line-height: 1.16;
   }
 }
 

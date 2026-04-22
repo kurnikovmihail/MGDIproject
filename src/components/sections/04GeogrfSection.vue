@@ -320,9 +320,9 @@ onBeforeUnmount(() => {
 
 .geo-map {
   width: 100%;
-  --map-max-inline-size: 1180px;
-  --map-margin-inline: auto 0;
-  --map-clip-path: inset(20% 0 0 0);
+  --map-max-inline-size: 980px;
+  --map-margin-inline: auto;
+  --map-clip-path: none;
 }
 
 .geo-map-legend {
@@ -389,11 +389,11 @@ onBeforeUnmount(() => {
   }
 
   .geo-map {
-    width: 110%;
-    margin-left: -5%;
-    --map-max-inline-size: none;
+    width: 100%;
+    margin-left: 0;
+    --map-max-inline-size: 100%;
     --map-margin-inline: auto;
-    --map-clip-path: inset(12% 0 0 0);
+    --map-clip-path: none;
   }
 
   .geo-map-legend {
@@ -433,9 +433,9 @@ onBeforeUnmount(() => {
   }
 
   .geo-map {
-    width: 122%;
-    margin-left: -11%;
-    --map-clip-path: inset(7% 0 0 0);
+    width: 100%;
+    margin-left: 0;
+    --map-clip-path: none;
   }
 
   .geo-map-legend-item {

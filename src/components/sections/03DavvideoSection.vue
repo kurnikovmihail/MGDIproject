@@ -419,46 +419,32 @@ onBeforeUnmount(() => {
     margin-top: 6px;
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-template-areas:
-      'card-1 card-1'
-      'card-2 card-3'
-      'card-4 card-4';
-    gap: 12px;
+    gap: 10px;
   }
 
   .life-cards .why-card {
     grid-column: auto !important;
-    min-height: clamp(208px, 31vw, 260px);
-    padding: 14px 8px 10px;
-    gap: 10px;
-  }
-
-  .life-cards .why-card:nth-child(1) {
-    grid-area: card-1;
-  }
-
-  .life-cards .why-card:nth-child(2) {
-    grid-area: card-2;
-  }
-
-  .life-cards .why-card:nth-child(3) {
-    grid-area: card-3;
-  }
-
-  .life-cards .why-card:nth-child(4) {
-    grid-area: card-4;
+    min-height: clamp(192px, 30vw, 236px);
+    padding: 12px 9px 10px;
+    gap: 9px;
+    justify-content: space-between;
   }
 
   .why-top {
     min-height: auto;
+    font-size: 0.78rem;
+    letter-spacing: 0.11em;
   }
 
   .why-icon-shell {
-    width: min(100%, 176px);
+    width: min(100%, 138px);
   }
 
   .why-bottom {
     min-height: auto;
+    max-width: 20ch;
+    font-size: 0.92rem;
+    line-height: 1.42;
   }
 }
 
@@ -470,34 +456,46 @@ onBeforeUnmount(() => {
   }
 
   .life-cards {
-    gap: 9px;
-  }
-
-  .life-cards .why-card {
-    min-height: clamp(174px, 45vw, 220px);
-    border-radius: 16px;
-    padding: 13px 10px 11px;
     gap: 8px;
   }
 
-  .life-cards .why-card:nth-child(1),
-  .life-cards .why-card:nth-child(4) {
-    min-height: clamp(186px, 50vw, 236px);
+  .life-cards .why-card {
+    min-height: clamp(164px, 42vw, 198px);
+    border-radius: 16px;
+    padding: 10px 8px 9px;
+    gap: 7px;
   }
 
   .why-top {
-    font-size: 0.74rem;
-    letter-spacing: 0.1em;
+    font-size: 0.68rem;
+    letter-spacing: 0.09em;
   }
 
   .why-icon-shell {
-    width: min(100%, 126px);
+    width: min(100%, 100px);
   }
 
   .why-bottom {
-    max-width: 24ch;
-    font-size: 0.95rem;
-    line-height: 1.44;
+    max-width: 18ch;
+    font-size: 0.8rem;
+    line-height: 1.3;
+  }
+}
+
+@media (max-width: 420px) {
+  .life-cards .why-card {
+    min-height: clamp(150px, 40vw, 184px);
+    padding: 9px 7px 8px;
+    gap: 6px;
+  }
+
+  .why-icon-shell {
+    width: min(100%, 88px);
+  }
+
+  .why-bottom {
+    font-size: 0.76rem;
+    line-height: 1.24;
   }
 }
 
