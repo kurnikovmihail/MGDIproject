@@ -54,6 +54,14 @@ const teamPhotos =
 const activeTeamPhotoIndex = ref(0)
 const activeTeamPhoto = computed(() => teamPhotos[activeTeamPhotoIndex.value] ?? teamPhotos[0])
 const hasTeamPhotoNav = computed(() => teamPhotos.length > 1)
+const isMobileView = ref(false)
+const prefersReducedMotion = ref(false)
+
+let mobileMediaQuery = null
+let reducedMotionMediaQuery = null
+let mobileViewListener = null
+let reducedMotionListener = null
+let teamAutoplayTimer = null
 
 function showPrevTeamPhoto() {
   if (!hasTeamPhotoNav.value) {
@@ -69,34 +77,106 @@ function showNextTeamPhoto() {
   activeTeamPhotoIndex.value = (activeTeamPhotoIndex.value + 1) % teamPhotos.length
 }
 
-onMounted(() => {
-  if (!('IntersectionObserver' in window)) {
-    isRevealed.value = true
+function stopTeamAutoplay() {
+  if (!teamAutoplayTimer) {
     return
   }
 
-  observer = new IntersectionObserver(
-    (entries) => {
-      const entry = entries[0]
-      if (!entry || !entry.isIntersecting) {
-        return
-      }
+  window.clearInterval(teamAutoplayTimer)
+  teamAutoplayTimer = null
+}
 
-      isRevealed.value = true
-      observer.disconnect()
-      observer = null
-    },
-    {
-      threshold: 0.22
-    }
-  )
-
-  if (aboutRef.value) {
-    observer.observe(aboutRef.value)
+function startTeamAutoplay() {
+  if (!hasTeamPhotoNav.value || !isMobileView.value || prefersReducedMotion.value || teamAutoplayTimer) {
+    return
   }
+
+  teamAutoplayTimer = window.setInterval(() => {
+    showNextTeamPhoto()
+  }, 3600)
+}
+
+function syncTeamAutoplay() {
+  stopTeamAutoplay()
+  startTeamAutoplay()
+}
+
+function updateMediaModeState() {
+  isMobileView.value = Boolean(mobileMediaQuery?.matches)
+  prefersReducedMotion.value = Boolean(reducedMotionMediaQuery?.matches)
+  syncTeamAutoplay()
+}
+
+onMounted(() => {
+  if (!('IntersectionObserver' in window)) {
+    isRevealed.value = true
+  } else {
+    observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0]
+        if (!entry || !entry.isIntersecting) {
+          return
+        }
+
+        isRevealed.value = true
+        observer.disconnect()
+        observer = null
+      },
+      {
+        threshold: 0.22
+      }
+    )
+
+    if (aboutRef.value) {
+      observer.observe(aboutRef.value)
+    }
+  }
+
+  mobileMediaQuery = window.matchMedia('(max-width: 900px)')
+  reducedMotionMediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+
+  mobileViewListener = () => updateMediaModeState()
+  reducedMotionListener = () => updateMediaModeState()
+
+  if ('addEventListener' in mobileMediaQuery) {
+    mobileMediaQuery.addEventListener('change', mobileViewListener)
+  } else {
+    mobileMediaQuery.addListener(mobileViewListener)
+  }
+
+  if ('addEventListener' in reducedMotionMediaQuery) {
+    reducedMotionMediaQuery.addEventListener('change', reducedMotionListener)
+  } else {
+    reducedMotionMediaQuery.addListener(reducedMotionListener)
+  }
+
+  updateMediaModeState()
 })
 
 onBeforeUnmount(() => {
+  stopTeamAutoplay()
+
+  if (mobileMediaQuery && mobileViewListener) {
+    if ('removeEventListener' in mobileMediaQuery) {
+      mobileMediaQuery.removeEventListener('change', mobileViewListener)
+    } else {
+      mobileMediaQuery.removeListener(mobileViewListener)
+    }
+  }
+
+  if (reducedMotionMediaQuery && reducedMotionListener) {
+    if ('removeEventListener' in reducedMotionMediaQuery) {
+      reducedMotionMediaQuery.removeEventListener('change', reducedMotionListener)
+    } else {
+      reducedMotionMediaQuery.removeListener(reducedMotionListener)
+    }
+  }
+
+  mobileMediaQuery = null
+  reducedMotionMediaQuery = null
+  mobileViewListener = null
+  reducedMotionListener = null
+
   if (observer) {
     observer.disconnect()
     observer = null
@@ -139,7 +219,7 @@ onBeforeUnmount(() => {
             <img class="about-media-image" :src="activeTeamPhoto.src" :alt="activeTeamPhoto.label" loading="lazy" />
             <figcaption>{{ activeTeamPhoto.label }}</figcaption>
             <button
-              v-if="hasTeamPhotoNav"
+              v-if="hasTeamPhotoNav && !isMobileView"
               type="button"
               class="about-team-nav about-team-nav-prev"
               aria-label="Предыдущее фото команды"
@@ -148,7 +228,7 @@ onBeforeUnmount(() => {
               ‹
             </button>
             <button
-              v-if="hasTeamPhotoNav"
+              v-if="hasTeamPhotoNav && !isMobileView"
               type="button"
               class="about-team-nav about-team-nav-next"
               aria-label="Следующее фото команды"
@@ -157,6 +237,14 @@ onBeforeUnmount(() => {
               ›
             </button>
             <p v-if="hasTeamPhotoNav" class="about-team-counter">{{ activeTeamPhotoIndex + 1 }} / {{ teamPhotos.length }}</p>
+            <div v-if="hasTeamPhotoNav && isMobileView" class="about-team-dots" aria-hidden="true">
+              <span
+                v-for="(photo, index) in teamPhotos"
+                :key="photo.fileName"
+                class="about-team-dot"
+                :class="{ 'is-active': index === activeTeamPhotoIndex }"
+              ></span>
+            </div>
           </figure>
         </div>
       </div>
@@ -438,6 +526,32 @@ onBeforeUnmount(() => {
   text-shadow: 0 1px 6px rgba(5, 10, 24, 0.75);
 }
 
+.about-team-dots {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.about-team-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: rgba(241, 246, 255, 0.42);
+  box-shadow: 0 1px 4px rgba(4, 8, 20, 0.38);
+  transition: background-color 0.24s ease, transform 0.24s ease;
+}
+
+.about-team-dot.is-active {
+  background: rgba(255, 255, 255, 0.96);
+  transform: scale(1.08);
+}
+
 .about-media:hover {
   transform: translate3d(0, -4px, 0);
   box-shadow: var(--shadow-pop);
@@ -498,9 +612,9 @@ onBeforeUnmount(() => {
 
 @media (max-width: 900px) {
   .about-stage {
-    grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
-    gap: 12px;
-    margin-top: 4px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+    margin-top: 2px;
   }
 
   .about-content {
@@ -509,135 +623,144 @@ onBeforeUnmount(() => {
   }
 
   .about-panel {
-    padding: 14px 12px;
+    padding: 16px 14px;
   }
 
   .about-content::before,
   .about-content::after {
-    width: 74%;
+    width: 76%;
     height: var(--about-strip-height);
   }
 
   .about-heading {
-    max-width: 11ch;
-    font-size: clamp(1.45rem, 4.6vw, 2.8rem);
+    max-width: 12ch;
+    font-size: clamp(1.7rem, 5vw, 3.1rem);
     line-height: 0.98;
   }
 
   .about-text {
-    gap: 8px;
+    gap: 10px;
   }
 
   .about-text p {
-    font-size: clamp(0.82rem, 0.24vw + 0.76rem, 0.92rem);
-    line-height: 1.46;
+    font-size: clamp(0.95rem, 0.3vw + 0.86rem, 1.02rem);
+    line-height: 1.52;
   }
 
   .about-media-stack {
-    gap: 9px;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: 10px;
   }
 
   .about-media figcaption {
-    left: 9px;
+    left: 10px;
     bottom: 9px;
-    padding: 5px 9px;
-    font-size: 0.64rem;
+    padding: 5px 10px;
+    font-size: 0.66rem;
     letter-spacing: 0.07em;
   }
 
   .about-david {
-    min-height: clamp(190px, 36vw, 270px);
+    min-height: clamp(210px, 38vw, 292px);
   }
 
   .about-team {
-    min-height: clamp(150px, 28vw, 220px);
+    min-height: clamp(210px, 38vw, 292px);
   }
 
   .about-team-nav {
-    width: 36px;
-    height: 36px;
-    background: rgba(5, 11, 24, 0.26);
-    backdrop-filter: blur(2px);
-    font-size: 1.68rem;
+    width: 33px;
+    height: 33px;
+    font-size: 1.48rem;
   }
 
   .about-team-counter {
     right: 8px;
-    top: 8px;
+    top: 10px;
+    bottom: auto;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(6, 11, 24, 0.45);
+    font-size: 0.64rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .about-stage {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .about-panel {
+    padding: 14px 12px;
+  }
+
+  .about-text {
+    gap: 9px;
+  }
+
+  .about-text p {
+    font-size: 0.93rem;
+    line-height: 1.5;
+  }
+
+  .about-media-stack {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .about-media figcaption {
+    left: 10px;
+    bottom: 10px;
+    padding: 5px 10px;
+    font-size: 0.66rem;
+    letter-spacing: 0.06em;
+  }
+
+  .about-heading {
+    max-width: 11ch;
+    font-size: clamp(1.6rem, 7.2vw, 2.5rem);
+    line-height: 0.98;
+  }
+
+  .about-david {
+    min-height: clamp(240px, 72vw, 370px);
+  }
+
+  .about-team {
+    min-height: clamp(222px, 62vw, 330px);
+  }
+
+  .about-team-nav {
+    width: 28px;
+    height: 28px;
+    font-size: 1.28rem;
+  }
+
+  .about-team-counter {
+    right: 10px;
+    top: 10px;
     bottom: auto;
     padding: 2px 7px;
     border-radius: 999px;
     background: rgba(6, 11, 24, 0.45);
     font-size: 0.62rem;
   }
-}
 
-@media (max-width: 640px) {
-  .about-stage {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 0.84fr);
-    gap: 8px;
+  .about-team-dots {
+    top: 10px;
+    gap: 5px;
   }
 
-  .about-panel {
-    padding: 11px 9px;
-  }
-
-  .about-text {
-    gap: 7px;
-  }
-
-  .about-text p {
-    font-size: 0.78rem;
-    line-height: 1.38;
-  }
-
-  .about-media-stack {
-    gap: 8px;
-  }
-
-  .about-media figcaption {
-    left: 8px;
-    bottom: 8px;
-    padding: 4px 8px;
-    font-size: 0.58rem;
-    letter-spacing: 0.06em;
-  }
-
-  .about-heading {
-    max-width: 9.5ch;
-    font-size: clamp(1.12rem, 5.3vw, 2rem);
-    line-height: 0.98;
-  }
-
-  .about-david {
-    min-height: clamp(158px, 47vw, 220px);
-  }
-
-  .about-team {
-    min-height: clamp(126px, 36vw, 176px);
-  }
-
-  .about-team-nav {
-    width: 32px;
-    height: 32px;
-    font-size: 1.46rem;
-  }
-
-  .about-team-counter {
-    right: 7px;
-    top: 7px;
-    bottom: auto;
-    padding: 2px 6px;
-    border-radius: 999px;
-    background: rgba(6, 11, 24, 0.45);
-    font-size: 0.56rem;
+  .about-team-dot {
+    width: 6px;
+    height: 6px;
   }
 }
 
 @media (max-width: 420px) {
   .about-stage {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr);
-    gap: 7px;
+    gap: 9px;
   }
 
   .about-content {
@@ -645,20 +768,28 @@ onBeforeUnmount(() => {
   }
 
   .about-panel {
-    padding: 9px 8px;
+    padding: 12px 10px;
   }
 
   .about-text p {
-    font-size: 0.74rem;
-    line-height: 1.34;
+    font-size: 0.88rem;
+    line-height: 1.44;
   }
 
   .about-david {
-    min-height: clamp(146px, 46vw, 198px);
+    min-height: clamp(220px, 74vw, 340px);
   }
 
   .about-team {
-    min-height: clamp(118px, 33vw, 160px);
+    min-height: clamp(212px, 60vw, 300px);
+  }
+
+  .about-team-counter {
+    font-size: 0.58rem;
+  }
+
+  .about-team-dots {
+    top: 9px;
   }
 }
 
