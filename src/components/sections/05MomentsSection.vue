@@ -874,6 +874,14 @@ onBeforeUnmount(() => {
   backdrop-filter: blur(12px);
 }
 
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .moment-viewer {
+    background:
+      radial-gradient(circle at 14% 12%, rgba(17, 70, 216, 0.2), rgba(17, 70, 216, 0) 40%),
+      rgba(5, 11, 27, 0.93);
+  }
+}
+
 .viewer-close {
   position: absolute;
   top: 14px;
@@ -1259,17 +1267,17 @@ onBeforeUnmount(() => {
   .viewer-thumb,
   .viewer-fade-enter-active,
   .viewer-fade-leave-active {
-    transition: none;
+    transition-duration: 0.24s;
   }
 
   .moment-card:hover,
   .moment-card:focus-visible {
-    transform: none;
+    transform: translateY(-1px);
   }
 
   .moment-card:hover .moment-image,
   .moment-card:focus-visible .moment-image {
-    transform: none;
+    transform: scale(1.015);
   }
 }
 </style>

@@ -2,7 +2,7 @@
 import mgdiPatternImage from '../../assets/section-06/01-pattern-strip.png'
 
 const rowDurations = [64, 78, 70, 86]
-const patternRows = Array.from({ length: 6 }, (_, index) => ({
+const patternRows = Array.from({ length: 12 }, (_, index) => ({
   id: `final-row-${index + 1}`,
   reverse: index % 2 === 1,
   duration: rowDurations[index % rowDurations.length] + Math.floor(index / 4) * 4
@@ -90,13 +90,14 @@ const patternRows = Array.from({ length: 6 }, (_, index) => ({
 
 .final-pattern {
   --final-shift: 1540px;
+  --final-speed: 1;
   position: absolute;
   inset: 0;
   z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: 0;
-  padding: 0;
+  gap: clamp(2px, 0.4vw, 6px);
+  padding: clamp(5px, 0.8vw, 10px) 0;
   pointer-events: none;
   overflow: hidden;
 }
@@ -118,7 +119,7 @@ const patternRows = Array.from({ length: 6 }, (_, index) => ({
   will-change: transform;
   transform: translate3d(0, 0, 0);
   animation-name: final-slide-left;
-  animation-duration: var(--final-duration, 60s);
+  animation-duration: calc(var(--final-duration, 60s) * var(--final-speed));
   animation-timing-function: linear;
   animation-iteration-count: infinite;
 }
@@ -193,7 +194,7 @@ const patternRows = Array.from({ length: 6 }, (_, index) => ({
 }
 
 @media (max-width: 1200px) {
-  .final-row:nth-child(n + 5) {
+  .final-row:nth-child(n + 11) {
     display: none;
   }
 }
@@ -201,16 +202,19 @@ const patternRows = Array.from({ length: 6 }, (_, index) => ({
 @media (max-width: 900px) {
   .final-pattern {
     --final-shift: 770px;
-    padding: 10px 0;
-    gap: 6px;
+    --final-speed: 0.7;
+    padding: 6px 0;
+    gap: 4px;
   }
 
-  .final-row:nth-child(n + 4) {
+  .final-row:nth-child(n + 10) {
     display: none;
   }
 
   .final-strip {
-    height: 45px;
+    height: 34px;
+    opacity: 0.26;
+    filter: saturate(0.98) brightness(0.88);
   }
 
   .final-actions {
@@ -225,6 +229,14 @@ const patternRows = Array.from({ length: 6 }, (_, index) => ({
 }
 
 @media (max-width: 640px) {
+  .final-row:nth-child(n + 9) {
+    display: none;
+  }
+
+  .final-strip {
+    height: 30px;
+  }
+
   .final-shell {
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
@@ -246,6 +258,16 @@ const patternRows = Array.from({ length: 6 }, (_, index) => ({
   }
 }
 
+@media (max-width: 420px) {
+  .final-row:nth-child(n + 8) {
+    display: none;
+  }
+
+  .final-strip {
+    height: 27px;
+  }
+}
+
 @media (hover: none) {
   .final-btn:hover {
     background: var(--accent-lime);
@@ -257,7 +279,7 @@ const patternRows = Array.from({ length: 6 }, (_, index) => ({
 
 @media (prefers-reduced-motion: reduce) {
   .final-track {
-    animation: none;
+    animation-duration: calc(var(--final-duration, 60s) * 1.2);
   }
 }
 </style>

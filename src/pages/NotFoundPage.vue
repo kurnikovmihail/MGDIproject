@@ -11,6 +11,7 @@
 
 <style scoped>
 .not-found {
+  min-height: 100vh;
   min-height: 100svh;
   display: grid;
   place-items: center;

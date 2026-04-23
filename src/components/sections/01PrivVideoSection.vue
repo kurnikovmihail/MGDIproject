@@ -5,7 +5,40 @@ import heroVideo from '../../assets/section-01/02-hero-background.mp4'
 
 const heroVideoRef = ref(null)
 let canPlayHandler = null
+let loadedDataHandler = null
+let canPlayThroughHandler = null
 let firstInteractionHandler = null
+let visibilityChangeHandler = null
+let autoplayRetryTimer = null
+let autoplayRetryCount = 0
+
+function clearAutoplayRetryTimer() {
+  if (!autoplayRetryTimer) {
+    return
+  }
+
+  window.clearInterval(autoplayRetryTimer)
+  autoplayRetryTimer = null
+}
+
+function startAutoplayRetry() {
+  const videoElement = heroVideoRef.value
+  if (!videoElement) {
+    return
+  }
+
+  autoplayRetryCount = 0
+  clearAutoplayRetryTimer()
+
+  autoplayRetryTimer = window.setInterval(() => {
+    autoplayRetryCount += 1
+    tryAutoplay()
+
+    if (!videoElement.paused || autoplayRetryCount >= 18) {
+      clearAutoplayRetryTimer()
+    }
+  }, 350)
+}
 
 function tryAutoplay() {
   const videoElement = heroVideoRef.value
@@ -15,6 +48,8 @@ function tryAutoplay() {
 
   videoElement.muted = true
   videoElement.defaultMuted = true
+  videoElement.autoplay = true
+  videoElement.loop = true
   videoElement.playsInline = true
   videoElement.setAttribute('muted', '')
   videoElement.setAttribute('playsinline', '')
@@ -32,7 +67,19 @@ onMounted(() => {
     return
   }
 
+  if (videoElement.readyState === 0) {
+    videoElement.load()
+  }
+
   canPlayHandler = () => {
+    tryAutoplay()
+  }
+
+  loadedDataHandler = () => {
+    tryAutoplay()
+  }
+
+  canPlayThroughHandler = () => {
     tryAutoplay()
   }
 
@@ -44,21 +91,43 @@ onMounted(() => {
     }
   }
 
+  visibilityChangeHandler = () => {
+    if (!document.hidden) {
+      tryAutoplay()
+    }
+  }
+
   tryAutoplay()
+  startAutoplayRetry()
   videoElement.addEventListener('canplay', canPlayHandler, { passive: true })
+  videoElement.addEventListener('loadeddata', loadedDataHandler, { passive: true })
+  videoElement.addEventListener('canplaythrough', canPlayThroughHandler, { passive: true })
   window.addEventListener('touchstart', firstInteractionHandler, { passive: true })
   window.addEventListener('pointerdown', firstInteractionHandler, { passive: true })
+  document.addEventListener('visibilitychange', visibilityChangeHandler, { passive: true })
 })
 
 onBeforeUnmount(() => {
+  clearAutoplayRetryTimer()
+
   const videoElement = heroVideoRef.value
   if (videoElement && canPlayHandler) {
     videoElement.removeEventListener('canplay', canPlayHandler)
+  }
+  if (videoElement && loadedDataHandler) {
+    videoElement.removeEventListener('loadeddata', loadedDataHandler)
+  }
+  if (videoElement && canPlayThroughHandler) {
+    videoElement.removeEventListener('canplaythrough', canPlayThroughHandler)
   }
 
   if (firstInteractionHandler) {
     window.removeEventListener('touchstart', firstInteractionHandler)
     window.removeEventListener('pointerdown', firstInteractionHandler)
+  }
+
+  if (visibilityChangeHandler) {
+    document.removeEventListener('visibilitychange', visibilityChangeHandler)
   }
 })
 </script>
@@ -96,6 +165,7 @@ onBeforeUnmount(() => {
 <style scoped>
 .hero {
   position: relative;
+  min-height: 100vh;
   min-height: 100svh;
   display: grid;
   place-items: center;

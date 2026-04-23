@@ -598,6 +598,14 @@ watch(
   pointer-events: auto;
 }
 
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .map-contact-bubble {
+    background:
+      linear-gradient(155deg, rgba(255, 255, 255, 0.97), rgba(246, 249, 255, 0.95)),
+      rgba(255, 255, 255, 0.97);
+  }
+}
+
 .map-contact-bubble::after {
   content: '';
   position: absolute;

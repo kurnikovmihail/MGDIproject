@@ -8,7 +8,7 @@ import mgdiPatternImage from '../../assets/section-03/05-pattern-strip.png'
 
 const iconSet = [guitarCard, communicationCard, learningCard, tripsCard]
 const rowDurations = [62, 76, 68, 84]
-const patternRows = Array.from({ length: 10 }, (_, index) => ({
+const patternRows = Array.from({ length: 14 }, (_, index) => ({
   id: `row-${index + 1}`,
   reverse: index % 2 === 1,
   duration: rowDurations[index % rowDurations.length] + Math.floor(index / 4) * 4
@@ -38,9 +38,22 @@ const sectionRef = ref(null)
 const isCardsOpen = ref(false)
 let observer = null
 
+function openCards() {
+  if (isCardsOpen.value) {
+    return
+  }
+
+  isCardsOpen.value = true
+
+  if (observer) {
+    observer.disconnect()
+    observer = null
+  }
+}
+
 onMounted(() => {
   if (!('IntersectionObserver' in window)) {
-    isCardsOpen.value = true
+    openCards()
     return
   }
 
@@ -51,12 +64,11 @@ onMounted(() => {
         return
       }
 
-      isCardsOpen.value = true
-      observer.disconnect()
-      observer = null
+      openCards()
     },
     {
-      threshold: 0.3
+      threshold: 0.14,
+      rootMargin: '0px 0px -10% 0px'
     }
   )
 
@@ -150,13 +162,14 @@ onBeforeUnmount(() => {
 
 .mgdi-pattern {
   --mgdi-shift: 1540px;
+  --mgdi-speed: 1;
   position: absolute;
   inset: 0;
   z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: clamp(6px, 0.6vw, 12px);
-  padding: clamp(10px, 1.4vw, 20px) 0;
+  gap: clamp(3px, 0.45vw, 8px);
+  padding: clamp(6px, 0.9vw, 12px) 0;
   pointer-events: none;
   overflow: hidden;
 }
@@ -178,7 +191,7 @@ onBeforeUnmount(() => {
   will-change: transform;
   transform: translate3d(0, 0, 0);
   animation-name: mgdi-slide-left;
-  animation-duration: var(--mgdi-duration, 60s);
+  animation-duration: calc(var(--mgdi-duration, 60s) * var(--mgdi-speed));
   animation-timing-function: linear;
   animation-iteration-count: infinite;
 }
@@ -385,7 +398,7 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 1200px) {
-  .mgdi-row:nth-child(n + 9) {
+  .mgdi-row:nth-child(n + 13) {
     display: none;
   }
 }
@@ -393,16 +406,19 @@ onBeforeUnmount(() => {
 @media (max-width: 900px) {
   .mgdi-pattern {
     --mgdi-shift: 770px;
-    padding: 10px 0;
-    gap: 6px;
+    --mgdi-speed: 0.7;
+    padding: 6px 0;
+    gap: 4px;
   }
 
-  .mgdi-row:nth-child(n + 5) {
+  .mgdi-row:nth-child(n + 12) {
     display: none;
   }
 
   .mgdi-strip {
-    height: 45px;
+    height: 36px;
+    opacity: 0.26;
+    filter: saturate(0.98) brightness(0.88);
   }
 
   .life-lead {
@@ -449,6 +465,14 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 640px) {
+  .mgdi-row:nth-child(n + 11) {
+    display: none;
+  }
+
+  .mgdi-strip {
+    height: 32px;
+  }
+
   .life-lead {
     margin: 12px 0 16px;
     font-size: 0.92rem;
@@ -483,6 +507,14 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 420px) {
+  .mgdi-row:nth-child(n + 10) {
+    display: none;
+  }
+
+  .mgdi-strip {
+    height: 28px;
+  }
+
   .life-cards .why-card {
     min-height: clamp(150px, 40vw, 184px);
     padding: 9px 7px 8px;
@@ -512,23 +544,11 @@ onBeforeUnmount(() => {
   .why-card::before,
   .why-card::after,
   .why-card > * {
-    transition: none;
+    transition-duration: 0.26s;
   }
 
   .mgdi-track {
-    animation: none;
-  }
-
-  .why-card,
-  .why-card > * {
-    opacity: 1;
-    transform: none;
-  }
-
-  .why-card::before,
-  .why-card::after {
-    opacity: 0;
-    transform: none;
+    animation-duration: calc(var(--mgdi-duration, 60s) * 1.2);
   }
 }
 </style>

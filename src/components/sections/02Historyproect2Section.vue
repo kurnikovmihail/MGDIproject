@@ -13,6 +13,7 @@ const aboutParagraphs = [
 const aboutRef = ref(null)
 const isRevealed = ref(false)
 let observer = null
+let revealFallbackTimer = null
 
 const teamFlowModules = import.meta.glob('../../assets/section-02/team-flows/*.{jpg,jpeg,png,webp,JPG,JPEG,PNG,WEBP}', {
   eager: true,
@@ -63,6 +64,29 @@ let mobileViewListener = null
 let reducedMotionListener = null
 let teamAutoplayTimer = null
 
+function clearRevealFallbackTimer() {
+  if (!revealFallbackTimer) {
+    return
+  }
+
+  window.clearTimeout(revealFallbackTimer)
+  revealFallbackTimer = null
+}
+
+function revealAboutSection() {
+  if (isRevealed.value) {
+    return
+  }
+
+  isRevealed.value = true
+  clearRevealFallbackTimer()
+
+  if (observer) {
+    observer.disconnect()
+    observer = null
+  }
+}
+
 function showPrevTeamPhoto() {
   if (!hasTeamPhotoNav.value) {
     return
@@ -108,8 +132,12 @@ function updateMediaModeState() {
 }
 
 onMounted(() => {
+  revealFallbackTimer = window.setTimeout(() => {
+    revealAboutSection()
+  }, 1700)
+
   if (!('IntersectionObserver' in window)) {
-    isRevealed.value = true
+    revealAboutSection()
   } else {
     observer = new IntersectionObserver(
       (entries) => {
@@ -118,12 +146,11 @@ onMounted(() => {
           return
         }
 
-        isRevealed.value = true
-        observer.disconnect()
-        observer = null
+        revealAboutSection()
       },
       {
-        threshold: 0.22
+        threshold: 0.12,
+        rootMargin: '0px 0px -10% 0px'
       }
     )
 
@@ -154,6 +181,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  clearRevealFallbackTimer()
   stopTeamAutoplay()
 
   if (mobileMediaQuery && mobileViewListener) {
@@ -624,7 +652,7 @@ onBeforeUnmount(() => {
 
   .about-content {
     --about-strip-height: 17px;
-    --about-portal-duration: 1.65s;
+    --about-portal-duration: 1.9s;
   }
 
   .about-panel {
@@ -729,30 +757,34 @@ onBeforeUnmount(() => {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .about-content {
+    --about-portal-duration: 1.35s;
+  }
+
   .about-panel,
   .about-copy,
   .about-media {
-    opacity: 1;
-    transform: none;
-    transition: none;
-    clip-path: inset(0 0 0 0 round calc(var(--radius-lg) + 2px));
+    transition-duration: calc(var(--about-portal-duration) * 0.9);
   }
 
   .about-content::before,
   .about-content::after {
-    transition: none;
-    transform: translateX(-50%) scaleX(1);
-    opacity: 1;
-    filter: none;
-  }
-
-  .about-copy {
-    filter: none;
-    transform: none;
+    transition-duration: var(--about-portal-duration);
+    filter: blur(0.18px);
   }
 
   .about-copy::before {
-    display: none;
+    opacity: 0.12;
+    transform: scale(0.9);
+    filter: blur(6px);
+  }
+}
+
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  @media (max-width: 900px) {
+    .about-team-nav {
+      background: rgba(5, 11, 24, 0.5);
+    }
   }
 }
 </style>

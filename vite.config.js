@@ -11,6 +11,11 @@ const noCacheHeaders = {
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [vue()],
+  build: {
+    // Explicit compatibility floor for popular browsers, including older Safari/iOS.
+    target: ['chrome96', 'edge96', 'firefox95', 'safari15', 'ios15'],
+    cssTarget: ['chrome96', 'edge96', 'firefox95', 'safari15', 'ios15']
+  },
   server: {
     host: true,
     port: 5173,

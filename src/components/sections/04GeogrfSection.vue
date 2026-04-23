@@ -102,7 +102,8 @@ onMounted(() => {
       observer = null
     },
     {
-      threshold: 0.24
+      threshold: 0.12,
+      rootMargin: '0px 0px -10% 0px'
     }
   )
 
@@ -450,8 +451,8 @@ onBeforeUnmount(() => {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .geo-map-card {
-    transition: none;
+  .geo.is-live .geo-map-card {
+    transition-duration: 0.28s, 0.34s;
   }
 
   .geo-map-card:hover {
