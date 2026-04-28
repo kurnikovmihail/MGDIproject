@@ -1,9 +1,11 @@
 ﻿<script setup>
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import heroPoster from '../../assets/section-01/01-hero-cover.jpg'
 import heroVideo from '../../assets/section-01/02-hero-background.mp4'
 
 const heroVideoRef = ref(null)
+const heroSectionRef = ref(null)
+const isIosSafari = ref(false)
 let canPlayHandler = null
 let loadedDataHandler = null
 let canPlayThroughHandler = null
@@ -11,6 +13,29 @@ let firstInteractionHandler = null
 let visibilityChangeHandler = null
 let autoplayRetryTimer = null
 let autoplayRetryCount = 0
+let orientationChangeHandler = null
+
+const heroClasses = computed(() => ({
+  'is-ios-stable': isIosSafari.value
+}))
+
+function detectIosSafari() {
+  const ua = window.navigator.userAgent || ''
+  const isIOS = /iP(ad|hone|od)/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+  const isWebKit = /WebKit/i.test(ua)
+  const isCriOS = /CriOS/i.test(ua)
+  const isFxiOS = /FxiOS/i.test(ua)
+  const isOPiOS = /OPiOS/i.test(ua)
+  return isIOS && isWebKit && !isCriOS && !isFxiOS && !isOPiOS
+}
+
+function lockHeroViewportHeight() {
+  const heroElement = heroSectionRef.value
+  if (!heroElement || !isIosSafari.value) {
+    return
+  }
+  heroElement.style.setProperty('--hero-fixed-height', `${window.innerHeight}px`)
+}
 
 function clearAutoplayRetryTimer() {
   if (!autoplayRetryTimer) {
@@ -62,6 +87,8 @@ function tryAutoplay() {
 }
 
 onMounted(() => {
+  isIosSafari.value = detectIosSafari()
+
   const videoElement = heroVideoRef.value
   if (!videoElement) {
     return
@@ -99,12 +126,19 @@ onMounted(() => {
 
   tryAutoplay()
   startAutoplayRetry()
+  lockHeroViewportHeight()
+
   videoElement.addEventListener('canplay', canPlayHandler, { passive: true })
   videoElement.addEventListener('loadeddata', loadedDataHandler, { passive: true })
   videoElement.addEventListener('canplaythrough', canPlayThroughHandler, { passive: true })
   window.addEventListener('touchstart', firstInteractionHandler, { passive: true })
   window.addEventListener('pointerdown', firstInteractionHandler, { passive: true })
   document.addEventListener('visibilitychange', visibilityChangeHandler, { passive: true })
+
+  orientationChangeHandler = () => {
+    window.setTimeout(lockHeroViewportHeight, 280)
+  }
+  window.addEventListener('orientationchange', orientationChangeHandler, { passive: true })
 })
 
 onBeforeUnmount(() => {
@@ -129,13 +163,23 @@ onBeforeUnmount(() => {
   if (visibilityChangeHandler) {
     document.removeEventListener('visibilitychange', visibilityChangeHandler)
   }
+
+  if (orientationChangeHandler) {
+    window.removeEventListener('orientationchange', orientationChangeHandler)
+  }
 })
 </script>
 
 <template>
-  <section id="priv-video" class="hero" data-block-name="Priv.video">
+  <section
+    id="priv-video"
+    ref="heroSectionRef"
+    class="hero"
+    :class="heroClasses"
+    data-block-name="Priv.video"
+  >
     <div class="hero-backdrop" :style="{ backgroundImage: `url(${heroPoster})` }" aria-hidden="true"></div>
-        <video
+    <video
       ref="heroVideoRef"
       class="hero-media"
       :poster="heroPoster"
@@ -167,11 +211,13 @@ onBeforeUnmount(() => {
   position: relative;
   min-height: 100vh;
   min-height: 100svh;
+  min-height: var(--hero-fixed-height, 100svh);
   display: grid;
   place-items: center;
   padding: calc(116px + env(safe-area-inset-top, 0px)) 0 70px;
   overflow: hidden;
   background: #050810;
+  contain: paint;
 }
 
 .hero-backdrop {
@@ -201,6 +247,7 @@ onBeforeUnmount(() => {
   -webkit-transform: translateZ(0);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  will-change: auto;
 }
 
 .hero-overlay {
@@ -298,30 +345,34 @@ onBeforeUnmount(() => {
   }
 }
 
-/* iPhone Safari stabilization: prevent scroll-time resampling/zoom artifacts */
+/* iPhone Safari stabilization: lock hero viewport, avoid dynamic resampling */
 @supports (-webkit-touch-callout: none) {
   @media (max-width: 900px) {
-    .hero {
-      height: 100svh;
-      min-height: 100svh;
+    .hero.is-ios-stable {
+      height: var(--hero-fixed-height, 100svh);
+      min-height: var(--hero-fixed-height, 100svh);
       isolation: isolate;
     }
 
-    .hero-backdrop {
+    .hero.is-ios-stable .hero-backdrop {
       display: none;
     }
 
-    .hero-media {
+    .hero.is-ios-stable .hero-media {
       filter: none;
       transform: none;
       -webkit-transform: none;
       will-change: auto;
     }
 
-    .hero-overlay {
+    .hero.is-ios-stable .hero-overlay {
       background:
         radial-gradient(ellipse at center, rgba(4, 8, 22, 0) 46%, rgba(4, 8, 22, 0.5) 78%, rgba(4, 8, 22, 0.86) 100%),
         linear-gradient(180deg, rgba(4, 8, 22, 0.3) 0%, rgba(4, 8, 22, 0.5) 52%, rgba(4, 8, 22, 0.78) 100%);
+    }
+
+    .hero.is-ios-stable .hero-noise {
+      opacity: 0.74;
     }
   }
 }
@@ -340,4 +391,3 @@ onBeforeUnmount(() => {
   }
 }
 </style>
-
