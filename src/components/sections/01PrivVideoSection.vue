@@ -182,6 +182,9 @@ onBeforeUnmount(() => {
   z-index: 0;
   filter: grayscale(100%) blur(26px) contrast(1.08) brightness(0.78);
   transform: scale(1.18);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform-origin: center;
 }
 
 .hero-media {
@@ -194,6 +197,10 @@ onBeforeUnmount(() => {
   filter: grayscale(100%) contrast(1.04);
   z-index: 1;
   opacity: 0.96;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .hero-overlay {
@@ -288,6 +295,28 @@ onBeforeUnmount(() => {
   .hero-lead {
     font-size: 0.95rem;
     line-height: 1.58;
+  }
+}
+
+/* iPhone Safari stabilization: prevent scroll-time resampling/zoom artifacts */
+@supports (-webkit-touch-callout: none) {
+  @media (max-width: 900px) {
+    .hero {
+      height: 100svh;
+      min-height: 100svh;
+    }
+
+    .hero-backdrop {
+      filter: grayscale(100%) blur(12px) contrast(1.02) brightness(0.82);
+      transform: none;
+      -webkit-transform: none;
+    }
+
+    .hero-media {
+      filter: grayscale(100%) contrast(1.02);
+      transform: none;
+      -webkit-transform: none;
+    }
   }
 }
 

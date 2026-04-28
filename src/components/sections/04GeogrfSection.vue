@@ -197,6 +197,10 @@ onBeforeUnmount(() => {
   background-position: center;
   opacity: 1;
   filter: saturate(1.22) contrast(1.04) brightness(1.01);
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .geo-city-backdrop.is-omsk .geo-city-backdrop-image {
@@ -447,6 +451,21 @@ onBeforeUnmount(() => {
   .geo::before,
   .geo::after {
     display: none;
+  }
+}
+
+/* iPhone Safari stabilization for background image while scrolling */
+@supports (-webkit-touch-callout: none) {
+  @media (max-width: 900px) {
+    .geo-city-backdrop-image {
+      filter: saturate(1.1) contrast(1.02) brightness(0.98);
+      transform: none;
+      -webkit-transform: none;
+    }
+
+    .geo-city-backdrop.is-omsk .geo-city-backdrop-image {
+      filter: saturate(1.02) contrast(1) brightness(0.9);
+    }
   }
 }
 
