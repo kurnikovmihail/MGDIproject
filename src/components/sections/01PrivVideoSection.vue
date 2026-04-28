@@ -304,18 +304,24 @@ onBeforeUnmount(() => {
     .hero {
       height: 100svh;
       min-height: 100svh;
+      isolation: isolate;
     }
 
     .hero-backdrop {
-      filter: grayscale(100%) blur(12px) contrast(1.02) brightness(0.82);
-      transform: none;
-      -webkit-transform: none;
+      display: none;
     }
 
     .hero-media {
-      filter: grayscale(100%) contrast(1.02);
+      filter: none;
       transform: none;
       -webkit-transform: none;
+      will-change: auto;
+    }
+
+    .hero-overlay {
+      background:
+        radial-gradient(ellipse at center, rgba(4, 8, 22, 0) 46%, rgba(4, 8, 22, 0.5) 78%, rgba(4, 8, 22, 0.86) 100%),
+        linear-gradient(180deg, rgba(4, 8, 22, 0.3) 0%, rgba(4, 8, 22, 0.5) 52%, rgba(4, 8, 22, 0.78) 100%);
     }
   }
 }
