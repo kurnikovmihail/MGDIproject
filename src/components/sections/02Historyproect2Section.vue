@@ -63,6 +63,7 @@ let reducedMotionMediaQuery = null
 let mobileViewListener = null
 let reducedMotionListener = null
 let teamAutoplayTimer = null
+const preloadedTeamPhotos = new Set()
 
 function clearRevealFallbackTimer() {
   if (!revealFallbackTimer) {
@@ -109,6 +110,32 @@ function setActiveTeamPhoto(index) {
     return
   }
   activeTeamPhotoIndex.value = index
+}
+
+async function preloadTeamPhoto(src) {
+  if (!src || preloadedTeamPhotos.has(src)) {
+    return
+  }
+
+  try {
+    const image = new Image()
+    image.src = src
+    if (typeof image.decode === 'function') {
+      await image.decode()
+    } else {
+      await new Promise((resolve, reject) => {
+        image.onload = () => resolve()
+        image.onerror = () => reject(new Error('image preload failed'))
+      })
+    }
+    preloadedTeamPhotos.add(src)
+  } catch {
+    // Keep silent: preload is an optimization, not a critical path.
+  }
+}
+
+async function preloadAllTeamPhotos() {
+  await Promise.all(teamPhotos.map((photo) => preloadTeamPhoto(photo.src)))
 }
 
 function stopTeamAutoplay() {
@@ -188,6 +215,7 @@ onMounted(() => {
   }
 
   updateMediaModeState()
+  preloadAllTeamPhotos()
 })
 
 onBeforeUnmount(() => {
@@ -254,7 +282,14 @@ onBeforeUnmount(() => {
           </figure>
 
           <figure class="about-media about-team">
-            <img class="about-media-image" :src="activeTeamPhoto.src" :alt="activeTeamPhoto.label" loading="lazy" />
+            <img
+              class="about-media-image"
+              :src="activeTeamPhoto.src"
+              :alt="activeTeamPhoto.label"
+              loading="eager"
+              fetchpriority="high"
+              decoding="async"
+            />
             <figcaption>{{ activeTeamPhoto.label }}</figcaption>
             <button
               v-if="hasTeamPhotoNav"
