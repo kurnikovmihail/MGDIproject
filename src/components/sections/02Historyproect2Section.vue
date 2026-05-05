@@ -101,6 +101,16 @@ function showNextTeamPhoto() {
   activeTeamPhotoIndex.value = (activeTeamPhotoIndex.value + 1) % teamPhotos.length
 }
 
+function setActiveTeamPhoto(index) {
+  if (!hasTeamPhotoNav.value) {
+    return
+  }
+  if (index < 0 || index >= teamPhotos.length) {
+    return
+  }
+  activeTeamPhotoIndex.value = index
+}
+
 function stopTeamAutoplay() {
   if (!teamAutoplayTimer) {
     return
@@ -247,7 +257,7 @@ onBeforeUnmount(() => {
             <img class="about-media-image" :src="activeTeamPhoto.src" :alt="activeTeamPhoto.label" loading="lazy" />
             <figcaption>{{ activeTeamPhoto.label }}</figcaption>
             <button
-              v-if="hasTeamPhotoNav && !isMobileView"
+              v-if="hasTeamPhotoNav"
               type="button"
               class="about-team-nav about-team-nav-prev"
               aria-label="Предыдущее фото команды"
@@ -256,7 +266,7 @@ onBeforeUnmount(() => {
               ‹
             </button>
             <button
-              v-if="hasTeamPhotoNav && !isMobileView"
+              v-if="hasTeamPhotoNav"
               type="button"
               class="about-team-nav about-team-nav-next"
               aria-label="Следующее фото команды"
@@ -265,13 +275,17 @@ onBeforeUnmount(() => {
               ›
             </button>
             <p v-if="hasTeamPhotoNav" class="about-team-counter">{{ activeTeamPhotoIndex + 1 }} / {{ teamPhotos.length }}</p>
-            <div v-if="hasTeamPhotoNav && isMobileView" class="about-team-dots" aria-hidden="true">
-              <span
+            <div v-if="hasTeamPhotoNav" class="about-team-dots">
+              <button
                 v-for="(photo, index) in teamPhotos"
                 :key="photo.fileName"
                 class="about-team-dot"
                 :class="{ 'is-active': index === activeTeamPhotoIndex }"
-              ></span>
+                :aria-label="`Показать фото ${index + 1}`"
+                :aria-pressed="index === activeTeamPhotoIndex"
+                type="button"
+                @click="setActiveTeamPhoto(index)"
+              ></button>
             </div>
           </figure>
         </div>
@@ -563,16 +577,24 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 6px;
   transform: translateX(-50%);
-  pointer-events: none;
 }
 
 .about-team-dot {
+  appearance: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
   width: 7px;
   height: 7px;
   border-radius: 999px;
   background: rgba(241, 246, 255, 0.42);
   box-shadow: 0 1px 4px rgba(4, 8, 20, 0.38);
   transition: background-color 0.24s ease, transform 0.24s ease;
+}
+
+.about-team-dot:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.9);
+  outline-offset: 2px;
 }
 
 .about-team-dot.is-active {
